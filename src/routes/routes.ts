@@ -1,13 +1,13 @@
-import { Request, Response, Router } from "express";
+import { Router } from "express";
 import { userRoutes } from "./userRoutes";
-import nodemailer from 'nodemailer';
+import { StartUpController } from "../controllers/StartUpContoller";
+import { startupRoutes } from "./startupRoutes";
 
 const router = Router()
 
-//User
+
 router.use(userRoutes)
+router.use(startupRoutes)
 
-
-
-
+        
 export { router }

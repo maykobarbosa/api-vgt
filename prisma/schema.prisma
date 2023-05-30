@@ -1,4 +1,4 @@
-// This is your Prisma schema file,
+// This is your StartUprisma schema file,
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 generator client {
@@ -23,4 +23,36 @@ model Users {
   date_create DateTime @default(now())
 
   @@map("usuarios")
+}
+
+model Companies {
+  id              String @id @default(uuid())
+  
+
+  @@map("empresas")
+}
+
+model Department{
+  id              String @id @default(uuid())
+}
+
+model Collaborators{
+  id              String @id @default(uuid())
+}
+
+model Expenses{
+  id              String @id @default(uuid())
+}
+
+model StartUp{
+  id              String @id @default(uuid())
+  companyName  String
+  describe String @db.Text
+  sizeCompany String
+  presentationLink String
+  usefulLink String
+  city String
+  phone String
+  date_update DateTime @updatedAt
+  date_create DateTime @default(now())
 }
