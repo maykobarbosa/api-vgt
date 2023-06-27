@@ -26,9 +26,19 @@ model Users {
 }
 
 model Companies {
-  id              String @id @default(uuid())
-  
+  id               String    @id @default(uuid())
+  avatar           String
+  name             String
+  valuation        Float
+  lucroLiquido     Float
+  receitaLiquida   Float
+  despesaBruta     Float
 
+  partner Partner[]
+  collaborator Collaborator[]
+  
+  date_update      DateTime  @updatedAt
+  date_create      DateTime  @default(now())
   @@map("empresas")
 }
 
@@ -36,8 +46,49 @@ model Department{
   id              String @id @default(uuid())
 }
 
-model Collaborators{
+model Partner{
   id              String @id @default(uuid())
+
+  people          People   @relation(fields: [peopleId], references: [id])
+  peopleId        String
+
+  company         Companies @relation(fields: [companyId], references: [id])
+  companyId       String
+
+  date_update      DateTime  @updatedAt
+  date_create      DateTime  @default(now())
+  @@map("socios")
+}
+
+
+model Collaborator{
+  id              String @id @default(uuid())
+
+  people          People   @relation(fields: [peopleId], references: [id])
+  peopleId        String
+
+  company         Companies @relation(fields: [companyId], references: [id])
+  companyId       String
+
+  date_update      DateTime  @updatedAt
+  date_create      DateTime  @default(now())
+  @@map("colaboradores")
+}
+
+model People {
+  id                      String      @id @default(uuid())
+  name                    String
+  office                  String
+  description             String
+  mail                    String @unique
+  contact                 String
+ 
+  partner Partner[]
+  collaborator Collaborator[]
+
+  date_update             DateTime    @updatedAt
+  date_create             DateTime    @default(now())
+  @@map("pessoa")
 }
 
 model Expenses{
@@ -53,6 +104,7 @@ model StartUp{
   usefulLink String
   city String
   phone String
+
   date_update DateTime @updatedAt
   date_create DateTime @default(now())
 }
