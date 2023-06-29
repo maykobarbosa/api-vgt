@@ -1,14 +1,5 @@
 import { prismaClient } from "../database/prismaClient";
 import { Request, Response } from "express";
-import Jwt, { JwtPayload } from 'jsonwebtoken'
-import bcrypt from 'bcrypt'
-import nodemailer from 'nodemailer';
-import { RecoverPassword } from "../templateEmail/recoverPassword";
-import crypto from 'crypto';
-interface Payload extends JwtPayload {
-    id: string
-    exp: number
-}
 
 export class PeopleController {
     async create(request: Request, response: Response){
@@ -35,7 +26,7 @@ export class PeopleController {
             }
         }       
        
-        await prismaClient.people.create({
+        const result = await prismaClient.people.create({
             data: {
                 name,
                 office,
@@ -45,15 +36,13 @@ export class PeopleController {
             }
         })
 
-        return response.status(201);
+        return response.json(result);
     }
 
     async searchOne(request: Request, response: Response){  
-        
-        
         let {id} = request.params  
         if(id) {
-            const result = await prismaClient.people.findMany({
+            const result = await prismaClient.people.findUnique({
                 where: { 
                     id
                 }
@@ -89,13 +78,20 @@ export class PeopleController {
     }
 
     async delete(request: Request, response: Response){
-        let { mail } = request.params
-
-        await prismaClient.people.deleteMany({
+        let { id } = request.params
+        const people = await prismaClient.people.findMany({   
             where: {
-                mail: mail
+                id
             }
-            
+        })
+        
+        if (people.length == 0) {
+            throw new Error("Pessoa não encontrada!")
+        }
+        await prismaClient.people.delete({
+            where: {
+                id
+            }            
         })        
         return response.json();            
     }
@@ -112,18 +108,28 @@ export class PeopleController {
          } = request.body
 
 
-        const people = await prismaClient.people.findUnique({   
+        const people = await prismaClient.people.findMany({   
             where: {
                 id
             }
         })
         
-        if (!people) {
+        if (people.length == 0) {
             throw new Error("Pessoa não encontrada!")
         }
-          
+
+        const people2 = await prismaClient.people.findMany({   
+            where: {
+                mail
+            }
+        })
+        
+        if (people2.length > 0) {
+            throw new Error("Já existe uma pessoa cadastrada com o e-mail informado!")
+        }
+        
             
-        await prismaClient.people.update({
+        const result = await prismaClient.people.update({
             where: {
                 id
             },
@@ -136,12 +142,7 @@ export class PeopleController {
             }
         })           
         
-        return response.json();       
-
+        return response.json(result);   
         
     }
-
-    
-   
-
 }
