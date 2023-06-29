@@ -227,7 +227,7 @@ export class UserController {
         const checkPassword = await bcrypt.compare(password, user.password)
       
         if (!checkPassword) {
-            throw new Error("Senha inválida!")
+            throw new Error("E-mail e/ou senha incorretos!")
         }      
         
         const token = Jwt.sign({
