@@ -40,4 +40,4 @@ app.use(
 //localhost:3333/
 
 app.use(express.static('public'));
-app.listen(36012, ()=>console.log("Servidor rodando na porta 4007!"))
+app.listen(36012, ()=>console.log("Servidor rodando na porta 36012!"))
