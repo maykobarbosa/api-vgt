@@ -77,10 +77,11 @@ model Collaborator{
 
 model People {
   id                      String      @id @default(uuid())
+  avatar                  String
   name                    String
   office                  String
   description             String
-  mail                    String @unique
+  email                    String @unique
   contact                 String
  
   partner Partner[]
