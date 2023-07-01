@@ -33,9 +33,6 @@ export class CompanyController {
     async searchOne(request: Request, response: Response){  
         let {id} = request.params  
         const companies = await prismaClient.companies.findMany({   
-            where: {
-                id
-            },
             include: {
                 realeases: {
                     orderBy: [
@@ -49,16 +46,15 @@ export class CompanyController {
                     take: 1 // Limita a consulta para trazer apenas o registro mais recente da TabelaB.
                 }
             },
+            where: {
+                id
+            },
+            
         })
         if (companies.length == 0) {
             throw new Error("Empresa não encontrada!")
         }
-        const result = await prismaClient.companies.findUnique({
-            where: { 
-                id
-            }
-        })
-        return response.json(result);  
+        return response.json(companies[0]);  
     }
 
    
