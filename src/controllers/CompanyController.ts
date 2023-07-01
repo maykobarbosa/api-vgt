@@ -36,7 +36,20 @@ export class CompanyController {
         const companies = await prismaClient.companies.findMany({   
             where: {
                 id
-            }
+            },
+            include: {
+                realeases: {
+                    orderBy: [
+                        {
+                            year: "desc",
+                        },
+                        {
+                            month: "desc",
+                        }
+                    ],
+                    take: 1 // Limita a consulta para trazer apenas o registro mais recente da TabelaB.
+                }
+            },
         })
         if (companies.length == 0) {
             throw new Error("Empresa não encontrada!")
