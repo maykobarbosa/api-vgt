@@ -1,15 +1,12 @@
 import { prismaClient } from "../database/prismaClient";
 import { Request, Response } from "express";
 import { deleteFile } from "../config/file";
+import { Prisma } from "@prisma/client";
 
 export class CompanyController {
     async create(request: Request, response: Response){
         const { 
-            name,
-            valuation,
-            lucroLiquido,
-            receitaLiquida,
-            despesaBruta            
+            name      
          } = request.body
         const avatar: string = String(request.file?.filename)
         if(name) {
@@ -28,11 +25,7 @@ export class CompanyController {
         const result = await prismaClient.companies.create({
             data: {
                 avatar,
-                name,
-                valuation: Number(valuation),
-                lucroLiquido: Number(lucroLiquido),
-                receitaLiquida: Number(receitaLiquida),
-                despesaBruta: Number(despesaBruta)  
+                name
             }
         })
         return response.json(result);
@@ -63,19 +56,56 @@ export class CompanyController {
     } 
 
     async searchAll(request: Request, response: Response){  
-        let {pag, name} = request.params  
-        const result = await prismaClient.companies.findMany({    
-            where:{
-                name: {
-                    contains: name
-                }
-            },        
-            skip: Number(pag),
-            take: 10,
-            orderBy: {
-                date_create: 'desc'
-            }            
-        })
+        let {pag, name} = request.body  
+        if(name==""){
+            var result = await prismaClient.companies.findMany({    
+                include: {
+                    realeases: {
+                        orderBy: [
+                            {
+                                year: "desc",
+                            },
+                            {
+                                month: "desc",
+                            }
+                        ],
+                        take: 1 // Limita a consulta para trazer apenas o registro mais recente da TabelaB.
+                    }
+                },
+                skip: Number(pag),
+                take: 10,
+                orderBy: {
+                    date_create: 'desc'
+                }            
+            })
+        }else{
+            var result = await prismaClient.companies.findMany({    
+                where:{
+                    name: {
+                        contains: name
+                    }
+                },   
+                include: {
+                    realeases: {
+                        orderBy: [
+                            {
+                                year: "desc",
+                            },
+                            {
+                                month: "desc",
+                            }
+                        ],
+                        take: 1 // Limita a consulta para trazer apenas o registro mais recente da TabelaB.
+                    }
+                },     
+                skip: Number(pag),
+                take: 10,
+                orderBy: {
+                    date_create: 'desc'
+                }            
+            })
+        }
+        
         return response.json(result); 
     }
 
@@ -102,11 +132,7 @@ export class CompanyController {
     async update(request: Request, response: Response){
         const { 
             id,
-            name,
-            valuation,
-            lucroLiquido,
-            receitaLiquida,
-            despesaBruta 
+            name
         } = request.body
         const companies = await prismaClient.companies.findMany({   
             where: {
@@ -132,11 +158,7 @@ export class CompanyController {
                 id
             },
             data: {
-                name,
-                valuation,
-                lucroLiquido,
-                receitaLiquida,
-                despesaBruta  
+                name
             }
         })   
         return response.json(result);           

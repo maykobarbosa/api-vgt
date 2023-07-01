@@ -15,7 +15,7 @@ companyRoutes.post("/company/register",
     (request, response) => Company.create(request, response)            
 )
 companyRoutes.get("/company/search-by-id/:id", Company.searchOne)
-companyRoutes.get("/company/search-by-name/:name/:pag", Company.searchAll)
+companyRoutes.get("/company/search-by-name/", Company.searchAll)
 companyRoutes.get("/company/total", Company.total)
 companyRoutes.put("/company/update", Company.update)
 companyRoutes.put("/company/update-avatar/:id", 
