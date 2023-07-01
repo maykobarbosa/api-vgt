@@ -44,7 +44,7 @@ export class CompanyController {
                         }
                     ],
                     take: 1 // Limita a consulta para trazer apenas o registro mais recente da TabelaB.
-                }
+                },
             },
             where: {
                 id
@@ -78,6 +78,12 @@ export class CompanyController {
                             }
                         ],
                         take: 1 // Limita a consulta para trazer apenas o registro mais recente da TabelaB.
+                    },
+                    _count: {
+                        select: {
+                            partner: true,
+                            collaborator: true
+                        }
                     }
                 },
                 skip: Number(pag),
@@ -104,6 +110,12 @@ export class CompanyController {
                             }
                         ],
                         take: 1 // Limita a consulta para trazer apenas o registro mais recente da TabelaB.
+                    },
+                    _count: {
+                        select: {
+                            partner: true,
+                            collaborator: true
+                        }
                     }
                 },     
                 skip: Number(pag),
