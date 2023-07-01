@@ -1,7 +1,6 @@
 import { prismaClient } from "../database/prismaClient";
 import { Request, Response } from "express";
 import { deleteFile } from "../config/file";
-import { Prisma } from "@prisma/client";
 
 export class CompanyController {
     async create(request: Request, response: Response){
