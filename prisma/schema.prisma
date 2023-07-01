@@ -29,11 +29,8 @@ model Companies {
   id               String    @id @default(uuid())
   avatar           String
   name             String
-  valuation        Float
-  lucroLiquido     Float
-  receitaLiquida   Float
-  despesaBruta     Float
-
+  
+  realeases Releases[]
   partner Partner[]
   collaborator Collaborator[]
   
@@ -41,6 +38,25 @@ model Companies {
   date_create      DateTime  @default(now())
   @@map("empresas")
 }
+
+model Releases{
+  id               String    @id @default(uuid()) 
+
+  month            Int 
+  year             Int
+  valuation        Float
+  lucroLiquido     Float
+  receitaLiquida   Float
+  despesaBruta     Float
+
+  company          Companies   @relation(fields: [companyId], references: [id])
+  companyId        String
+
+  date_update      DateTime  @updatedAt
+  date_create      DateTime  @default(now())
+  @@map("lancamentos")
+}
+
 
 model Department{
   id              String @id @default(uuid())
@@ -77,10 +93,11 @@ model Collaborator{
 
 model People {
   id                      String      @id @default(uuid())
+  avatar                  String
   name                    String
   office                  String
   description             String
-  mail                    String @unique
+  email                    String @unique
   contact                 String
  
   partner Partner[]

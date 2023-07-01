@@ -1,3 +1,4 @@
+import { deleteFile } from "../config/file";
 import { prismaClient } from "../database/prismaClient";
 import { Request, Response } from "express";
 
@@ -7,49 +8,52 @@ export class PeopleController {
             name,
             office,
             description,
-            mail,
+            email,
             contact             
          } = request.body
-
-        //validar mail
-        if(mail) {
+        const avatar: string = String(request.file?.filename)
+        if(email) {
             const result = await prismaClient.people.findMany({                
                 where: { 
-                    mail: {
-                                equals: mail
+                    email: {
+                                equals: email
                             }
                         }
-            })
-            
+            })            
             if(result.length != 0){
-                throw Error("Já possui uma pessoa cadastrada com este e-mail!")
+                deleteFile(`./public/img/people/${avatar}`)
+                throw Error("Já possui uma pessoa cadastrada com este e-email!")
             }
-        }       
-       
+        }     
         const result = await prismaClient.people.create({
             data: {
+                avatar,
                 name,
                 office,
                 description,
-                mail,
+                email,
                 contact
             }
         })
-
         return response.json(result);
     }
 
     async searchOne(request: Request, response: Response){  
         let {id} = request.params  
-        if(id) {
-            const result = await prismaClient.people.findUnique({
-                where: { 
-                    id
-                }
-            })
-            
-            return response.json(result);   
+        const valida = await prismaClient.people.findMany({
+            where: { 
+                id
+            }
+        })      
+        if (valida.length == 0) {
+            throw new Error("Pessoa não encontrada!")
         }
+        const result = await prismaClient.people.findUnique({
+            where: { 
+                id
+            }
+        })            
+        return response.json(result); 
     }
 
    
@@ -83,8 +87,7 @@ export class PeopleController {
             where: {
                 id
             }
-        })
-        
+        })        
         if (people.length == 0) {
             throw new Error("Pessoa não encontrada!")
         }
@@ -92,7 +95,9 @@ export class PeopleController {
             where: {
                 id
             }            
-        })        
+        })    
+        
+        deleteFile(`./public/img/people/${people[0].avatar}`)    
         return response.json();            
     }
 
@@ -103,32 +108,27 @@ export class PeopleController {
             name,
             office,
             description,
-            mail,
+            email,
             contact  
          } = request.body
-
-
         const people = await prismaClient.people.findMany({   
             where: {
                 id
             }
-        })
-        
+        })        
         if (people.length == 0) {
             throw new Error("Pessoa não encontrada!")
         }
-
-        const people2 = await prismaClient.people.findMany({   
-            where: {
-                mail
+        if(email!=people[0].email){
+            const people2 = await prismaClient.people.findMany({   
+                where: {
+                    email
+                }
+            })            
+            if (people2.length > 0) {
+                throw new Error("Já existe uma pessoa cadastrada com o e-email informado!")
             }
-        })
-        
-        if (people2.length > 0) {
-            throw new Error("Já existe uma pessoa cadastrada com o e-mail informado!")
-        }
-        
-            
+        }     
         const result = await prismaClient.people.update({
             where: {
                 id
@@ -137,12 +137,36 @@ export class PeopleController {
                 name,
                 office,
                 description,
-                mail,
+                email,
                 contact  
             }
-        })           
-        
-        return response.json(result);   
-        
+        })          
+        return response.json(result);           
+    }
+    async updateAvatar(request: Request, response: Response){
+        const { 
+            id
+        } = request.params
+        const avatar: string = String(request.file?.filename)
+        const people = await prismaClient.people.findMany({   
+            where: {
+                id
+            }
+        })        
+        if (people.length == 0) {
+            deleteFile(`./public/img/people/${avatar}`)
+            throw new Error("Pessoa não encontrada!")
+        }                           
+        const result = await prismaClient.people.update({
+            where: {
+                id
+            },
+            data: {
+                avatar
+            }
+        })       
+        if(result)   
+        deleteFile(`./public/img/people/${people[0].avatar}`)          
+        return response.json(result);           
     }
 }
