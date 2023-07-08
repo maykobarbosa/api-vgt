@@ -13,7 +13,7 @@ peopleRoutes.post("/people/register",
     (request,response) => People.create(request,response)
 )
 peopleRoutes.get("/people/search-by-id/:id", People.searchOne)
-peopleRoutes.get("/people/search-by-name/:name/:pag", People.searchAll)
+peopleRoutes.post("/people/search-by-name/", People.searchAll)
 peopleRoutes.get("/people/total", People.total)
 peopleRoutes.put("/people/update", People.update)
 peopleRoutes.put("/people/update-avatar/:id", 

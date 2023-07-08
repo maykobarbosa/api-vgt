@@ -86,7 +86,7 @@ export class ReleasesController {
         const { 
             companyId,
             year
-        } = request.body
+        } = request.params
         const result = await prismaClient.releases.findMany({                
             where: { 
                 AND: [
@@ -94,7 +94,7 @@ export class ReleasesController {
                         companyId
                     },
                     {
-                        year
+                        year: Number(year)
                     }
                 ]
             }

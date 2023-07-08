@@ -25,6 +25,7 @@
     "typescript": "^5.0.4"
   },
   "dependencies": {
+    "@faker-js/faker": "^8.0.2",
     "@prisma/client": "^4.13.0",
     "bcrypt": "^5.1.0",
     "cors": "^2.8.5",

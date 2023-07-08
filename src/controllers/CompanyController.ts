@@ -45,6 +45,12 @@ export class CompanyController {
                     ],
                     take: 1 // Limita a consulta para trazer apenas o registro mais recente da TabelaB.
                 },
+                _count: {
+                    select: {
+                        partner: true,
+                        collaborator: true
+                    }
+                }
             },
             where: {
                 id
@@ -64,8 +70,8 @@ export class CompanyController {
     } 
 
     async searchAll(request: Request, response: Response){  
-        let {pag, name} = request.body  
-        if(name==""){
+        let {pag, name} = request.params  
+        if(name=="null"){
             var result = await prismaClient.companies.findMany({    
                 include: {
                     realeases: {
