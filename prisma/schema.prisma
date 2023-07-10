@@ -29,6 +29,7 @@ model Companies {
   id               String    @id @default(uuid())
   avatar           String
   name             String
+  equity           Float?
   
   realeases Releases[]
   partner Partner[]

@@ -5,7 +5,8 @@ import { deleteFile } from "../config/file";
 export class CompanyController {
     async create(request: Request, response: Response){
         const { 
-            name      
+            name,
+            equity      
          } = request.body
         const avatar: string = String(request.file?.filename)
         if(name) {
@@ -24,7 +25,8 @@ export class CompanyController {
         const result = await prismaClient.companies.create({
             data: {
                 avatar,
-                name
+                name,
+                equity
             }
         })
         return response.json(result);
@@ -158,7 +160,8 @@ export class CompanyController {
     async update(request: Request, response: Response){
         const { 
             id,
-            name
+            name,
+            equity
         } = request.body
         const companies = await prismaClient.companies.findMany({   
             where: {
@@ -184,7 +187,8 @@ export class CompanyController {
                 id
             },
             data: {
-                name
+                name,
+                equity
             }
         })   
         return response.json(result);           
@@ -192,7 +196,7 @@ export class CompanyController {
     async updateAvatar(request: Request, response: Response){
         const { 
             id
-        } = request.params
+        } = request.body
         const avatar: string = String(request.file?.filename)
         const companies = await prismaClient.companies.findMany({   
             where: {

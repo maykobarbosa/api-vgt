@@ -162,7 +162,7 @@ export class PeopleController {
             deleteFile(`./public/img/people/${people[0].avatar}`)    
             return response.json(result);            
         } catch (error) {
-            throw new Error("O contato possui vínculo(s) empresa(s)!")
+            throw new Error("O contato possui vínculo(s) com empresa(s)!")
         }        
     }
 

@@ -18,7 +18,7 @@ companyRoutes.get("/company/search-by-id/:id", Company.searchOne)
 companyRoutes.get("/company/search-by-name/:name/:pag", Company.searchAll)
 companyRoutes.get("/company/total", Company.total)
 companyRoutes.put("/company/update", Company.update)
-companyRoutes.put("/company/update-avatar/:id", 
+companyRoutes.put("/company/update-avatar", 
     uploadAvatar.single("file"), 
     (request, response) =>Company.updateAvatar(request, response)
 )
