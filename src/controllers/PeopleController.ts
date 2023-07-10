@@ -153,38 +153,17 @@ export class PeopleController {
         if (people.length == 0) {
             throw new Error("Pessoa não encontrada!")
         }
-        const partner = await prismaClient.partner.findMany({
-            where:{
-                peopleId: id
-            }
-        })
-        if(partner.length > 0){
-            await prismaClient.partner.deleteMany({
-                where: {                    
-                    peopleId: id
-                }
-            })
-        }
-        const collaborator = await prismaClient.collaborator.findMany({
-            where:{
-                peopleId: id
-            }
-        })
-        if(collaborator.length > 0){
-            await prismaClient.collaborator.deleteMany({
-                where: {                        
-                    peopleId: id
-                }
-            })
-        }
-        const result = await prismaClient.people.deleteMany({
-            where: {
-                id
-            }            
-        })    
-        
-        deleteFile(`./public/img/people/${people[0].avatar}`)    
-        return response.json(result);            
+        try {
+            const result = await prismaClient.people.deleteMany({
+                where: {
+                    id
+                }            
+            }) 
+            deleteFile(`./public/img/people/${people[0].avatar}`)    
+            return response.json(result);            
+        } catch (error) {
+            throw new Error("O contato possui vínculo(s) empresa(s)!")
+        }        
     }
 
 
@@ -196,7 +175,7 @@ export class PeopleController {
             description,
             email,
             contact  
-         } = request.body
+        } = request.body
         const people = await prismaClient.people.findMany({   
             where: {
                 id
@@ -232,7 +211,7 @@ export class PeopleController {
     async updateAvatar(request: Request, response: Response){
         const { 
             id
-        } = request.params
+        } = request.body
         const avatar: string = String(request.file?.filename)
         const people = await prismaClient.people.findMany({   
             where: {
