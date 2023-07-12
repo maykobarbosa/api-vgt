@@ -6,7 +6,16 @@ export class CompanyController {
     async create(request: Request, response: Response){
         const { 
             name,
-            equity      
+            description,
+            sector,
+            address,
+            city,
+            state,
+            zip,
+            email,
+            phone,
+            website,
+            equity    
          } = request.body
         const avatar: string = String(request.file?.filename)
         if(name) {
@@ -26,7 +35,16 @@ export class CompanyController {
             data: {
                 avatar,
                 name,
-                equity
+                description,
+                sector,
+                address,
+                city,
+                state,
+                zip,
+                email,
+                phone,
+                website,
+                equity    
             }
         })
         return response.json(result);
@@ -161,7 +179,16 @@ export class CompanyController {
         const { 
             id,
             name,
-            equity
+            description,
+            sector,
+            address,
+            city,
+            state,
+            zip,
+            email,
+            phone,
+            website,
+            equity    
         } = request.body
         const companies = await prismaClient.companies.findMany({   
             where: {
@@ -188,7 +215,16 @@ export class CompanyController {
             },
             data: {
                 name,
-                equity
+                description,
+                sector,
+                address,
+                city,
+                state,
+                zip,
+                email,
+                phone,
+                website,
+                equity    
             }
         })   
         return response.json(result);           
