@@ -14,6 +14,8 @@ datasource db {
 model Users {
   id              String @id @default(uuid())
   email           String @unique
+
+  avatar           String?
   full_name   String
   fone            String
   password           String
@@ -21,6 +23,8 @@ model Users {
   token_recover_password String? @unique
   date_update DateTime @updatedAt
   date_create DateTime @default(now())
+
+  releases Releases[]
 
   @@map("usuarios")
 }
@@ -63,6 +67,9 @@ model Releases{
 
   company          Companies   @relation(fields: [companyId], references: [id])
   companyId        String
+
+  author           Users    @relation(fields: [authorId], references: [id])
+  authorId         String
 
   date_update      DateTime  @updatedAt
   date_create      DateTime  @default(now())

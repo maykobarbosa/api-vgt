@@ -112,8 +112,8 @@ export class CompanyController {
                         }
                     }
                 },
-                skip: Number(pag),
-                take: 10,
+                // skip: Number(pag),
+                // take: 10,
                 orderBy: {
                     date_create: 'desc'
                 }            
@@ -144,8 +144,8 @@ export class CompanyController {
                         }
                     }
                 },     
-                skip: Number(pag),
-                take: 10,
+                // skip: Number(pag),
+                // take: 10,
                 orderBy: {
                     date_create: 'desc'
                 }            

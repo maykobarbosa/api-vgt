@@ -10,7 +10,8 @@ export class ReleasesController {
             valuation,
             lucroLiquido,
             receitaLiquida,
-            despesaBruta
+            despesaBruta,
+            authorId
         } = request.body               
         if(month > 12 || month == 0){
             throw Error("Mês inválido!")
@@ -24,6 +25,16 @@ export class ReleasesController {
         })
         if(validaID.length == 0){
             throw Error("Empresa não encontrada!")
+        }
+        const validaAuthor = await prismaClient.users.findMany({                
+            where: { 
+                id: {
+                    equals:authorId
+                }
+            }
+        })
+        if(validaAuthor.length == 0){
+            throw Error("Autor não encontrado!")
         }
         const validaReleases = await prismaClient.releases.findMany({                
             where: { 
@@ -51,7 +62,8 @@ export class ReleasesController {
                 valuation,
                 lucroLiquido,
                 receitaLiquida,
-                despesaBruta
+                despesaBruta,
+                authorId
             }
         })
         return response.json(result);
@@ -97,6 +109,12 @@ export class ReleasesController {
                         year: Number(year)
                     }
                 ]
+            },
+            include:{
+                author: true
+            },
+            orderBy: {
+                month: "desc"
             }
         })
         if (result.length == 0) {
@@ -127,13 +145,24 @@ export class ReleasesController {
             valuation,
             lucroLiquido,
             receitaLiquida,
-            despesaBruta
+            despesaBruta,
+            authorId
         } = request.body
         const releases = await prismaClient.releases.findMany({   
             where: {
                 id
             }
         })
+        const validaAuthor = await prismaClient.users.findMany({                
+            where: { 
+                id: {
+                    equals:authorId
+                }
+            }
+        })
+        if(validaAuthor.length == 0){
+            throw Error("Autor não encontrado!")
+        }
         if (releases.length == 0) {
             throw new Error("Lançamento não encontrado!")
         }       
@@ -145,7 +174,8 @@ export class ReleasesController {
                 valuation,
                 lucroLiquido,
                 receitaLiquida,
-                despesaBruta
+                despesaBruta,
+                authorId
             }
         })   
         return response.json(result);           
