@@ -10,7 +10,6 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-
 model Users {
   id              String @id @default(uuid())
   email           String @unique
@@ -24,7 +23,9 @@ model Users {
   date_update DateTime @updatedAt
   date_create DateTime @default(now())
 
+  companies Companies[]
   releases Releases[]
+  group Group[]
 
   @@map("usuarios")
 }
@@ -49,11 +50,45 @@ model Companies {
   realeases Releases[]
   partner Partner[]
   collaborator Collaborator[]
+  group Group[]
+
+  owner           Users    @relation(fields: [ownerId], references: [id])
+  ownerId         String
+
+
+  authorId         String
   
   date_update      DateTime  @updatedAt
   date_create      DateTime  @default(now())
   @@map("empresas")
 }
+
+model Group{
+  id               String    @id @default(uuid()) 
+
+  status           Status 
+
+  company          Companies   @relation(fields: [companyId], references: [id])
+  companyId        String
+
+  member           Users    @relation(fields: [memberId], references: [id])
+  memberId         String
+
+  viewedNotification Boolean  
+
+  authorId         String
+
+  date_update      DateTime  @updatedAt
+  date_create      DateTime  @default(now())
+  @@map("grupo")
+}
+
+enum Status {
+  PENDENTE
+  APROVADO
+  NEGADO
+}
+
 
 model Releases{
   id               String    @id @default(uuid()) 
