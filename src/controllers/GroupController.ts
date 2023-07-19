@@ -6,8 +6,7 @@ export class GroupController {
         const { 
             authorId,            
             companyId,
-            memberId,
-            status 
+            email
          } = request.body
         const valida = await prismaClient.companies.findMany({                
             where: { 
@@ -28,11 +27,22 @@ export class GroupController {
         if(valida.length == 0){
             throw new Error("Empresa não encontrada, ou você não tem acesso!")
         }
+        const validaUser = await prismaClient.users.findUnique({                
+            where: { 
+               email
+            }
+        })
+        if(!validaUser){
+            throw new Error("Não existe usuário com o e-mail informado!")
+        }
+
         const validaGroup = await prismaClient.group.findMany({                
             where: { 
                 AND: [
                     {
-                        memberId
+                        memberId: {
+                            equals: validaUser.id
+                        }
                     },
                     {
                         companyId
@@ -41,15 +51,15 @@ export class GroupController {
             }
         })
         if(validaGroup.length != 0){
-            throw new Error("O membro já possui acesso à empresa!")
+            throw new Error("O membro já possui acesso à empresa ou um convite enviado!")
         }
         const result = await prismaClient.group.create({
             data: {
                 authorId,
                 viewedNotification: false,
                 companyId,
-                memberId,
-                status 
+                memberId: validaUser.id,
+                status: "PENDENTE" 
             }
         })
         return response.json(result);
@@ -87,25 +97,16 @@ export class GroupController {
     async update(request: Request, response: Response){
         const { 
             id,
-            memberId,
             status,
             viewedNotification
          } = request.body
         const group = await prismaClient.group.findMany({   
             where: {
-                AND: [
-                    { 
-                        id
-                    },
-                    {
-                        memberId
-                    }
-                ]
-               
+                id               
             },   
         })        
         if (group.length == 0) {
-            throw new Error("Você não tem acesso!")
+            throw new Error("ID inválido!")
         }
         
         const result = await prismaClient.group.update({
@@ -114,7 +115,7 @@ export class GroupController {
             },
             data: {
                 status,
-                viewedNotification  
+                viewedNotification,
             }
         })   
         return response.json(result);           
@@ -133,9 +134,16 @@ export class GroupController {
                     {
                         status:"PENDENTE"
                     }
-                ]
-               
-            },   
+                ]               
+            }, 
+            include:{
+                company: {
+                    select: {
+                        avatar: true,
+                        name: true
+                    }
+                },
+            }  
         })        
         
         return response.json(group);           
@@ -161,7 +169,15 @@ export class GroupController {
                     }
                 ]
                
-            },   
+            },  
+            include:{
+                member: {
+                    select: {
+                        avatar: true,
+                        full_name: true
+                    }
+                },
+            }   
         })        
         
         return response.json(group);           

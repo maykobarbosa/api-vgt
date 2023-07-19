@@ -22,7 +22,6 @@ export class UserController {
             profile
          } = request.body
 
-        const avatar: string = String(request.file?.filename)
         //validar email
         if(email) {
             const result = await prismaClient.users.findMany({                
@@ -34,7 +33,6 @@ export class UserController {
             })
             
             if(result.length != 0){
-                deleteFile(`./public/img/people/${avatar}`)
                 throw Error("Já possui uma conta cadastrada com este e-mail!")
             }
         }       
@@ -48,7 +46,6 @@ export class UserController {
 
         const user = await prismaClient.users.create({
             data: {
-                avatar,
                 email,
                 full_name,
                 fone,

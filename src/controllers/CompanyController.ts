@@ -16,7 +16,6 @@ export class CompanyController {
             phone,
             website,
             equity,
-            ownerId,
             authorId    
          } = request.body
         const avatar: string = String(request.file?.filename)
@@ -47,7 +46,7 @@ export class CompanyController {
                 phone,
                 website,
                 equity,
-                ownerId,
+                ownerId: authorId,
                 authorId
             }
         })
@@ -91,9 +90,14 @@ export class CompanyController {
                             {
                                 group: {  ///verifica se faz parte do grupo
                                     every: {
-                                        memberId: {
-                                            equals: userId
-                                        }
+                                        AND: [
+                                            {
+                                                memberId: {
+                                                    equals: userId
+                                                },
+                                                status: "APROVADO"
+                                            }
+                                        ]
                                     }
                                 }
                             }
@@ -125,9 +129,14 @@ export class CompanyController {
                     {
                         group: { ///verifica se faz parte do grupo
                             every: {
-                                memberId: {
-                                    equals: userId
-                                }
+                                AND: [
+                                    {
+                                        memberId: {
+                                            equals: userId
+                                        },
+                                        status: "APROVADO"
+                                    }
+                                ]
                             }
                         }
                     }
@@ -151,9 +160,14 @@ export class CompanyController {
                         {
                             group: { ///verifica se faz parte do grupo
                                 every: {
-                                    memberId: {
-                                        equals: userId
-                                    }
+                                    AND: [
+                                        {
+                                            memberId: {
+                                                equals: userId
+                                            },
+                                            status: "APROVADO"
+                                        }
+                                    ]
                                 }
                             }
                         }
@@ -204,9 +218,14 @@ export class CompanyController {
                                 {
                                     group: {  ///verifica se faz parte do grupo
                                         every: {
-                                            memberId: {
-                                                equals: userId
-                                            }
+                                            AND: [
+                                                {
+                                                    memberId: {
+                                                        equals: userId
+                                                    },
+                                                    status: "APROVADO"
+                                                }
+                                            ]
                                         }
                                     }
                                 }
@@ -304,39 +323,15 @@ export class CompanyController {
             phone,
             website,
             equity,
-            userId  
+            authorId  
         } = request.body
         const companies = await prismaClient.companies.findMany({   
             where: {
-                AND: [
-                    { 
-                        id
-                    },
-                    {
-                        OR: [
-                            {
-                                ownerId: {
-                                    equals: userId
-                                }
-                            },
-                            {
-                                group: {  ///verifica se faz parte do grupo
-                                    every: {
-                                        memberId: {
-                                            equals: userId
-                                        }
-                                    }
-                                }
-                            }
-                        ]
-                    }
-
-                ]
-               
+                id                    
             },   
         })
         if (companies.length == 0) {
-            throw new Error("Empresa não encontrada, ou você não tem acesso!")
+            throw new Error("Empresa não encontrada, ou você não tem permissão para esta ação!")
         }
         if(name!=companies[0].name){
             const result = await prismaClient.companies.findMany({   
@@ -365,7 +360,7 @@ export class CompanyController {
                 phone,
                 website,
                 equity,
-                authorId: userId    
+                authorId
             }
         })   
         return response.json(result);           
@@ -381,25 +376,12 @@ export class CompanyController {
                 AND: [
                     { 
                         id
-                    },
+                    },                    
                     {
-                        OR: [
-                            {
-                                ownerId: {
-                                    equals: userId
-                                }
-                            },
-                            {
-                                group: {  ///verifica se faz parte do grupo
-                                    every: {
-                                        memberId: {
-                                            equals: userId
-                                        }
-                                    }
-                                }
-                            }
-                        ]
-                    }
+                        ownerId: {
+                            equals: userId
+                        }
+                    },                           
 
                 ]
                
