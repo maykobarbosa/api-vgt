@@ -89,7 +89,7 @@ export class CompanyController {
                             },
                             {
                                 group: {  ///verifica se faz parte do grupo
-                                    every: {
+                                    some: {
                                         AND: [
                                             {
                                                 memberId: {
@@ -159,7 +159,7 @@ export class CompanyController {
                         },
                         {
                             group: { ///verifica se faz parte do grupo
-                                every: {
+                                some: {
                                     AND: [
                                         {
                                             memberId: {
@@ -217,7 +217,7 @@ export class CompanyController {
                                 },
                                 {
                                     group: {  ///verifica se faz parte do grupo
-                                        every: {
+                                        some: {
                                             AND: [
                                                 {
                                                     memberId: {
@@ -282,7 +282,7 @@ export class CompanyController {
                             },
                             {
                                 group: {  ///verifica se faz parte do grupo
-                                    every: {
+                                    some: {
                                         memberId: {
                                             equals: userId
                                         }
