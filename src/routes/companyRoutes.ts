@@ -14,15 +14,15 @@ companyRoutes.post("/company/register",
     uploadAvatar.single("file"),
     (request, response) => Company.create(request, response)            
 )
-companyRoutes.get("/company/search-by-id/:id", Company.searchOne)
-companyRoutes.get("/company/search-by-name/", Company.searchAll)
-companyRoutes.get("/company/total", Company.total)
+companyRoutes.get("/company/search-by-id/:id/:userId", Company.searchOne)
+companyRoutes.get("/company/search-by-name/:name/:pag/:userId", Company.searchAll)
+companyRoutes.get("/company/total/:userId", Company.total)
 companyRoutes.put("/company/update", Company.update)
-companyRoutes.put("/company/update-avatar/:id", 
+companyRoutes.put("/company/update-avatar", 
     uploadAvatar.single("file"), 
     (request, response) =>Company.updateAvatar(request, response)
 )
-companyRoutes.delete("/company/delete/:id", Company.delete)
+companyRoutes.delete("/company/delete/:id/:userId", Company.delete)
 
 
 export { companyRoutes }

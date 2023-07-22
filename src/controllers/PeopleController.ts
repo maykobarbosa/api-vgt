@@ -1,3 +1,4 @@
+import { env } from "process";
 import { deleteFile } from "../config/file";
 import { prismaClient } from "../database/prismaClient";
 import { Request, Response } from "express";
@@ -63,21 +64,82 @@ export class PeopleController {
     } 
 
     async searchAll(request: Request, response: Response){  
-        let {pag, name} = request.params  
+        let {pag, name} = request.body  
 
-        const result = await prismaClient.people.findMany({    
-            where:{
-                name: {
-                    contains: name
+        if(name == " "){
+            var result = await prismaClient.people.findMany({                     
+                skip: Number(pag),
+                take: 20,
+                orderBy: {
+                    date_create: 'desc'
+                },
+                include:{
+                    partner: {
+                        select: {
+                            company: {
+                                select: {
+                                    name: true
+                                }
+                            }
+                        }
+
+                    }
+                }      
+            })
+            var total = await prismaClient.people.count()
+        }else{
+            var result = await prismaClient.people.findMany({         
+                where:{
+                    name: {
+                        contains: name
+                    }
+                },      
+
+                skip: Number(pag),
+                take: 20,
+                orderBy: {
+                    date_create: 'desc'
+                },
+                include:{
+                    partner: {
+                        select: {
+                            company: {
+                                select: {
+                                    name: true
+                                }
+                            }
+                        }
+
+                    }
+                }    
+
+            })
+            var total = await prismaClient.people.count({         
+                where:{
+                    name: {
+                        contains: name
+                    }
                 }
-            },        
-            skip: Number(pag),
-            take: 10,
-            orderBy: {
-                date_create: 'desc'
-            }            
-        })
-        return response.json(result);   
+            })
+        }
+        
+        return response.json({
+            total: total,
+            pessoas: result.map((i)=>{
+                return ({
+                  id: i.id,
+                  name: i.name,
+                  avatar:  `${process.env.URL_PHOTOS_API}/img/people/${i.avatar}`,  
+                  email: i.email,                 
+                  companies_partner: i.partner,
+                  office: i.office,
+                  description: i.description,
+                  contact: i.contact,
+                  date_update: i.date_update,
+                  date_create: i.date_create
+                })
+            })
+        });   
         
     }
 
@@ -91,14 +153,17 @@ export class PeopleController {
         if (people.length == 0) {
             throw new Error("Pessoa não encontrada!")
         }
-        await prismaClient.people.delete({
-            where: {
-                id
-            }            
-        })    
-        
-        deleteFile(`./public/img/people/${people[0].avatar}`)    
-        return response.json();            
+        try {
+            const result = await prismaClient.people.deleteMany({
+                where: {
+                    id
+                }            
+            }) 
+            deleteFile(`./public/img/people/${people[0].avatar}`)    
+            return response.json(result);            
+        } catch (error) {
+            throw new Error("O contato possui vínculo(s) com empresa(s)!")
+        }        
     }
 
 
@@ -110,7 +175,7 @@ export class PeopleController {
             description,
             email,
             contact  
-         } = request.body
+        } = request.body
         const people = await prismaClient.people.findMany({   
             where: {
                 id
@@ -146,7 +211,7 @@ export class PeopleController {
     async updateAvatar(request: Request, response: Response){
         const { 
             id
-        } = request.params
+        } = request.body
         const avatar: string = String(request.file?.filename)
         const people = await prismaClient.people.findMany({   
             where: {

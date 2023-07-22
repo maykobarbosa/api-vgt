@@ -1,14 +1,20 @@
 import {  Router } from "express";
 import { UserController } from "../controllers/UserController";
+import multer from "multer";
 
+import uploadConfig from "../config/upload";
 
 const userRoutes = Router()
 
 
 const User = new UserController() 
 
+const uploadAvatar = multer(uploadConfig.upload("./public/img/people"))
 //criar usuario
-userRoutes.post("/user", User.create)
+userRoutes.post("/user", 
+    uploadAvatar.single("file"),
+    (request,response) => User.create(request,response)
+)
 //login User
 userRoutes.post("/auth", User.authenticate)
 //refresh token
@@ -24,6 +30,10 @@ userRoutes.get("/users-count", User.totalUsers)
 
 //atualiza users
 userRoutes.put("/users", User.update)
+userRoutes.put("/users/update-avatar/", 
+    uploadAvatar.single("file"),
+    (request,response) => User.updateAvatar(request,response)
+)
 //delete users
 userRoutes.delete("/users/:email", User.delete)
 

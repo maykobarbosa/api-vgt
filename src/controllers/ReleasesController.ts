@@ -10,7 +10,8 @@ export class ReleasesController {
             valuation,
             lucroLiquido,
             receitaLiquida,
-            despesaBruta
+            despesaBruta,
+            authorId
         } = request.body               
         if(month > 12 || month == 0){
             throw Error("Mês inválido!")
@@ -24,6 +25,16 @@ export class ReleasesController {
         })
         if(validaID.length == 0){
             throw Error("Empresa não encontrada!")
+        }
+        const validaAuthor = await prismaClient.users.findMany({                
+            where: { 
+                id: {
+                    equals:authorId
+                }
+            }
+        })
+        if(validaAuthor.length == 0){
+            throw Error("Autor não encontrado!")
         }
         const validaReleases = await prismaClient.releases.findMany({                
             where: { 
@@ -40,9 +51,9 @@ export class ReleasesController {
                 ]
             }
         })
-        if(validaReleases.length != 0){
-            throw Error(`Você só pode fazer um lançamento por mês!`)
-        }        
+        // if(validaReleases.length != 0){
+        //     throw Error(`Você só pode fazer um lançamento por mês!`)
+        // }        
         const result = await prismaClient.releases.create({
             data: {
                 companyId,
@@ -51,7 +62,8 @@ export class ReleasesController {
                 valuation,
                 lucroLiquido,
                 receitaLiquida,
-                despesaBruta
+                despesaBruta,
+                authorId
             }
         })
         return response.json(result);
@@ -77,16 +89,16 @@ export class ReleasesController {
                 ]
             }
         })
-        if (result.length == 0) {
-            throw new Error("Não existe lançamento para o período informado!")
-        }        
+        // if (result.length == 0) {
+        //     throw new Error("Não existe lançamento para o período informado!")
+        // }        
         return response.json(result[0]);  
     }
     async searchYear(request: Request, response: Response){  
         const { 
             companyId,
             year
-        } = request.body
+        } = request.params
         const result = await prismaClient.releases.findMany({                
             where: { 
                 AND: [
@@ -94,14 +106,20 @@ export class ReleasesController {
                         companyId
                     },
                     {
-                        year
+                        year: Number(year)
                     }
                 ]
+            },
+            include:{
+                author: true
+            },
+            orderBy: {
+                month: "desc"
             }
         })
-        if (result.length == 0) {
-            throw new Error("Não existe lançamento para o ano informado!")
-        }        
+        // if (result.length == 0) {
+        //     throw new Error("Não existe lançamento para o ano informado!")
+        // }        
         return response.json(result);  
     }
     async delete(request: Request, response: Response){
@@ -127,13 +145,24 @@ export class ReleasesController {
             valuation,
             lucroLiquido,
             receitaLiquida,
-            despesaBruta
+            despesaBruta,
+            authorId
         } = request.body
         const releases = await prismaClient.releases.findMany({   
             where: {
                 id
             }
         })
+        const validaAuthor = await prismaClient.users.findMany({                
+            where: { 
+                id: {
+                    equals:authorId
+                }
+            }
+        })
+        if(validaAuthor.length == 0){
+            throw Error("Autor não encontrado!")
+        }
         if (releases.length == 0) {
             throw new Error("Lançamento não encontrado!")
         }       
@@ -145,7 +174,8 @@ export class ReleasesController {
                 valuation,
                 lucroLiquido,
                 receitaLiquida,
-                despesaBruta
+                despesaBruta,
+                authorId
             }
         })   
         return response.json(result);           

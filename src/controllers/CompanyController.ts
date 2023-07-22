@@ -5,7 +5,18 @@ import { deleteFile } from "../config/file";
 export class CompanyController {
     async create(request: Request, response: Response){
         const { 
-            name      
+            name,
+            description,
+            sector,
+            address,
+            city,
+            state,
+            zip,
+            email,
+            phone,
+            website,
+            equity,
+            authorId    
          } = request.body
         const avatar: string = String(request.file?.filename)
         if(name) {
@@ -24,14 +35,26 @@ export class CompanyController {
         const result = await prismaClient.companies.create({
             data: {
                 avatar,
-                name
+                name,
+                description,
+                sector,
+                address,
+                city,
+                state,
+                zip,
+                email,
+                phone,
+                website,
+                equity,
+                ownerId: authorId,
+                authorId
             }
         })
         return response.json(result);
     }
 
     async searchOne(request: Request, response: Response){  
-        let {id} = request.params  
+        let {id, userId} = request.params  
         const companies = await prismaClient.companies.findMany({   
             include: {
                 realeases: {
@@ -45,28 +68,112 @@ export class CompanyController {
                     ],
                     take: 1 // Limita a consulta para trazer apenas o registro mais recente da TabelaB.
                 },
+                _count: {
+                    select: {
+                        partner: true,
+                        collaborator: true
+                    }
+                }
             },
             where: {
-                id
-            },
-            
+                AND: [
+                    { 
+                        id
+                    },
+                    {
+                        OR: [
+                            {
+                                ownerId: {
+                                    equals: userId
+                                }
+                            },
+                            {
+                                group: {  ///verifica se faz parte do grupo
+                                    every: {
+                                        AND: [
+                                            {
+                                                memberId: {
+                                                    equals: userId
+                                                },
+                                                status: "APROVADO"
+                                            }
+                                        ]
+                                    }
+                                }
+                            }
+                        ]
+                    }
+
+                ]
+               
+            },   
         })
         if (companies.length == 0) {
-            throw new Error("Empresa não encontrada!")
+            throw new Error("Empresa não encontrada, ou você não tem acesso!")
         }
         return response.json(companies[0]);  
     }
 
    
     async total(request: Request, response: Response){  
-        const result = await prismaClient.companies.count()
+
+        let {userId} = request.params  
+        const result = await prismaClient.companies.count({
+            where:{
+                OR: [
+                    {
+                        ownerId: {
+                            equals: userId
+                        }
+                    },
+                    {
+                        group: { ///verifica se faz parte do grupo
+                            every: {
+                                AND: [
+                                    {
+                                        memberId: {
+                                            equals: userId
+                                        },
+                                        status: "APROVADO"
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                ]
+            },
+        })
         return response.json(result);              
     } 
 
     async searchAll(request: Request, response: Response){  
-        let {pag, name} = request.body  
-        if(name==""){
+        let {pag, name, userId} = request.params  
+        if(name=="null"){
             var result = await prismaClient.companies.findMany({    
+                where:{
+                    OR: [
+                        {
+                            ownerId: {
+                                equals: userId
+                            }
+                        },
+                        {
+                            group: { ///verifica se faz parte do grupo
+                                every: {
+                                    AND: [
+                                        {
+                                            memberId: {
+                                                equals: userId
+                                            },
+                                            status: "APROVADO"
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    ]
+                },
+
                 include: {
                     realeases: {
                         orderBy: [
@@ -86,8 +193,8 @@ export class CompanyController {
                         }
                     }
                 },
-                skip: Number(pag),
-                take: 10,
+                // skip: Number(pag),
+                // take: 10,
                 orderBy: {
                     date_create: 'desc'
                 }            
@@ -95,9 +202,38 @@ export class CompanyController {
         }else{
             var result = await prismaClient.companies.findMany({    
                 where:{
-                    name: {
-                        contains: name
-                    }
+                    AND: [
+                        { 
+                            name: {
+                                contains: name
+                            }
+                        },
+                        {
+                            OR: [
+                                {
+                                    ownerId: {
+                                        equals: userId
+                                    }
+                                },
+                                {
+                                    group: {  ///verifica se faz parte do grupo
+                                        every: {
+                                            AND: [
+                                                {
+                                                    memberId: {
+                                                        equals: userId
+                                                    },
+                                                    status: "APROVADO"
+                                                }
+                                            ]
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+
+                    ]
+                   
                 },   
                 include: {
                     realeases: {
@@ -118,8 +254,8 @@ export class CompanyController {
                         }
                     }
                 },     
-                skip: Number(pag),
-                take: 10,
+                // skip: Number(pag),
+                // take: 10,
                 orderBy: {
                     date_create: 'desc'
                 }            
@@ -130,14 +266,38 @@ export class CompanyController {
     }
 
     async delete(request: Request, response: Response){
-        let { id } = request.params
+        let { id, userId } = request.params
         const companies = await prismaClient.companies.findMany({   
             where: {
-                id
-            }
+                AND: [
+                    { 
+                        id
+                    },
+                    {
+                        OR: [
+                            {
+                                ownerId: {
+                                    equals: userId
+                                }
+                            },
+                            {
+                                group: {  ///verifica se faz parte do grupo
+                                    every: {
+                                        memberId: {
+                                            equals: userId
+                                        }
+                                    }
+                                }
+                            }
+                        ]
+                    }
+
+                ]
+               
+            },   
         })
         if (companies.length == 0) {
-            throw new Error("Empresa não encontrada!")
+            throw new Error("Empresa não encontrada, ou você não tem acesso!")
         }
         await prismaClient.companies.delete({
             where: {
@@ -152,15 +312,26 @@ export class CompanyController {
     async update(request: Request, response: Response){
         const { 
             id,
-            name
+            name,
+            description,
+            sector,
+            address,
+            city,
+            state,
+            zip,
+            email,
+            phone,
+            website,
+            equity,
+            authorId  
         } = request.body
         const companies = await prismaClient.companies.findMany({   
             where: {
-                id
-            }
+                id                    
+            },   
         })
         if (companies.length == 0) {
-            throw new Error("Empresa não encontrada!")
+            throw new Error("Empresa não encontrada, ou você não tem permissão para esta ação!")
         }
         if(name!=companies[0].name){
             const result = await prismaClient.companies.findMany({   
@@ -178,24 +349,47 @@ export class CompanyController {
                 id
             },
             data: {
-                name
+                name,
+                description,
+                sector,
+                address,
+                city,
+                state,
+                zip,
+                email,
+                phone,
+                website,
+                equity,
+                authorId
             }
         })   
         return response.json(result);           
     }
     async updateAvatar(request: Request, response: Response){
         const { 
-            id
-        } = request.params
+            id,
+            userId
+        } = request.body
         const avatar: string = String(request.file?.filename)
         const companies = await prismaClient.companies.findMany({   
             where: {
-                id
-            }
-        })        
+                AND: [
+                    { 
+                        id
+                    },                    
+                    {
+                        ownerId: {
+                            equals: userId
+                        }
+                    },                           
+
+                ]
+               
+            },   
+        })
         if (companies.length == 0) {
             deleteFile(`./public/img/company/${avatar}`)
-            throw new Error("Empresa não encontrada!")
+            throw new Error("Empresa não encontrada, ou você não tem acesso!")
         }     
                       
         const result = await prismaClient.companies.update({
@@ -203,7 +397,8 @@ export class CompanyController {
                 id
             },
             data: {
-                avatar
+                avatar,
+                authorId: userId 
             }
         })       
         if(result)   
