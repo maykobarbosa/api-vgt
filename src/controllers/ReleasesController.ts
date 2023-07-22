@@ -51,9 +51,9 @@ export class ReleasesController {
                 ]
             }
         })
-        if(validaReleases.length != 0){
-            throw Error(`Você só pode fazer um lançamento por mês!`)
-        }        
+        // if(validaReleases.length != 0){
+        //     throw Error(`Você só pode fazer um lançamento por mês!`)
+        // }        
         const result = await prismaClient.releases.create({
             data: {
                 companyId,
@@ -89,9 +89,9 @@ export class ReleasesController {
                 ]
             }
         })
-        if (result.length == 0) {
-            throw new Error("Não existe lançamento para o período informado!")
-        }        
+        // if (result.length == 0) {
+        //     throw new Error("Não existe lançamento para o período informado!")
+        // }        
         return response.json(result[0]);  
     }
     async searchYear(request: Request, response: Response){  
@@ -117,9 +117,9 @@ export class ReleasesController {
                 month: "desc"
             }
         })
-        if (result.length == 0) {
-            throw new Error("Não existe lançamento para o ano informado!")
-        }        
+        // if (result.length == 0) {
+        //     throw new Error("Não existe lançamento para o ano informado!")
+        // }        
         return response.json(result);  
     }
     async delete(request: Request, response: Response){
