@@ -5,6 +5,7 @@ import bcrypt from 'bcrypt'
 import nodemailer from 'nodemailer';
 import { RecoverPassword } from "../templateEmail/recoverPassword";
 import crypto from 'crypto';
+import { deleteFile } from "../config/file";
 interface Payload extends JwtPayload {
     id: string
     exp: number
@@ -53,7 +54,7 @@ export class UserController {
             }
         })
 
-        return response.json();
+        return response.json(user);
     }
 
     async consultaOne(request: Request, response: Response){  
@@ -487,5 +488,32 @@ export class UserController {
         }
        
       
+    }
+    async updateAvatar(request: Request, response: Response){
+        const { 
+            id
+        } = request.body
+        const avatar: string = String(request.file?.filename)
+        const users = await prismaClient.users.findMany({   
+            where: {
+                id
+            }
+        })        
+        if (users.length == 0) {
+            deleteFile(`./public/img/people/${avatar}`)
+            throw new Error("Usuário não encontrado!")
+        }     
+                      
+        const result = await prismaClient.users.update({
+            where: {
+                id
+            },
+            data: {
+                avatar
+            }
+        })       
+        if(result)   
+        deleteFile(`./public/img/people/${users[0].avatar}`)          
+        return response.json(result);           
     }
 }
