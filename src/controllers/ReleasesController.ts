@@ -13,6 +13,22 @@ export class ReleasesController {
             despesaBruta,
             authorId
         } = request.body               
+        var user = await prismaClient.users.findUnique({
+            where: {            
+                id: authorId
+            }            
+        })
+        if(!user){
+            user = await prismaClient.users.findUnique({
+                where: {
+                    email: authorId
+                }
+            })
+        }
+
+        if(!user){            
+            throw new Error("Usuário authenticado não foi cadastrado!")
+        }
         if(month > 12 || month == 0){
             throw Error("Mês inválido!")
         }
@@ -29,28 +45,28 @@ export class ReleasesController {
         const validaAuthor = await prismaClient.users.findMany({                
             where: { 
                 id: {
-                    equals:authorId
+                    equals: user.id
                 }
             }
         })
         if(validaAuthor.length == 0){
             throw Error("Autor não encontrado!")
         }
-        const validaReleases = await prismaClient.releases.findMany({                
-            where: { 
-                AND: [
-                    {
-                        companyId
-                    },
-                    {
-                        month
-                    },
-                    {
-                        year
-                    }
-                ]
-            }
-        })
+        // const validaReleases = await prismaClient.releases.findMany({                
+        //     where: { 
+        //         AND: [
+        //             {
+        //                 companyId
+        //             },
+        //             {
+        //                 month
+        //             },
+        //             {
+        //                 year
+        //             }
+        //         ]
+        //     }
+        // })
         // if(validaReleases.length != 0){
         //     throw Error(`Você só pode fazer um lançamento por mês!`)
         // }        
@@ -63,7 +79,7 @@ export class ReleasesController {
                 lucroLiquido,
                 receitaLiquida,
                 despesaBruta,
-                authorId
+                authorId: user.id
             }
         })
         return response.json(result);
@@ -148,6 +164,22 @@ export class ReleasesController {
             despesaBruta,
             authorId
         } = request.body
+        var user = await prismaClient.users.findUnique({
+            where: {            
+                id: authorId
+            }            
+        })
+        if(!user){
+            user = await prismaClient.users.findUnique({
+                where: {
+                    email: authorId
+                }
+            })
+        }
+
+        if(!user){            
+            throw new Error("Usuário authenticado não foi cadastrado!")
+        }
         const releases = await prismaClient.releases.findMany({   
             where: {
                 id
@@ -156,7 +188,7 @@ export class ReleasesController {
         const validaAuthor = await prismaClient.users.findMany({                
             where: { 
                 id: {
-                    equals:authorId
+                    equals:user.id
                 }
             }
         })
@@ -175,7 +207,7 @@ export class ReleasesController {
                 lucroLiquido,
                 receitaLiquida,
                 despesaBruta,
-                authorId
+                authorId: user.id
             }
         })   
         return response.json(result);           
