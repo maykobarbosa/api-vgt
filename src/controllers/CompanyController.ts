@@ -1,7 +1,6 @@
 import { prismaClient } from "../database/prismaClient";
 import { Request, Response } from "express";
 import { deleteFile } from "../config/file";
-import { error } from "console";
 
 export class CompanyController {
     async create(request: Request, response: Response){
@@ -33,22 +32,6 @@ export class CompanyController {
                 throw Error("Já possui uma empresa cadastrada com este nome!")
             }
         }       
-        var user = await prismaClient.users.findUnique({
-            where: {            
-                id: authorId
-            }            
-        })
-        if(!user){
-            user = await prismaClient.users.findUnique({
-                where: {
-                    email: authorId
-                }
-            })
-        }
-
-        if(!user){            
-            throw new Error("Usuário authenticado não foi cadastrado!")
-        }
         const result = await prismaClient.companies.create({
             data: {
                 avatar,
@@ -63,8 +46,8 @@ export class CompanyController {
                 phone,
                 website,
                 equity,
-                ownerId: user.id,
-                authorId: user.id
+                ownerId: authorId,
+                authorId
             }
         })
         return response.json(result);
@@ -72,23 +55,6 @@ export class CompanyController {
 
     async searchOne(request: Request, response: Response){  
         let {id, userId} = request.params  
-        var user = await prismaClient.users.findUnique({
-            where: {            
-                id: userId
-            }            
-        })
-        if(!user){
-            user = await prismaClient.users.findUnique({
-                where: {
-                    email: userId
-                }
-            })
-        }
-
-        if(!user){            
-            throw new Error("Usuário authenticado não foi cadastrado!")
-        }
-      
         const companies = await prismaClient.companies.findMany({   
             include: {
                 realeases: {
@@ -118,7 +84,7 @@ export class CompanyController {
                         OR: [
                             {
                                 ownerId: {
-                                    equals: user.id
+                                    equals: userId
                                 }
                             },
                             {
@@ -127,7 +93,7 @@ export class CompanyController {
                                         AND: [
                                             {
                                                 memberId: {
-                                                    equals: user.id
+                                                    equals: userId
                                                 },
                                                 status: "APROVADO"
                                             }
@@ -152,38 +118,21 @@ export class CompanyController {
     async total(request: Request, response: Response){  
 
         let {userId} = request.params  
-        var user = await prismaClient.users.findUnique({
-            where: {            
-                id: userId
-            }            
-        })
-        if(!user){
-            user = await prismaClient.users.findUnique({
-                where: {
-                    email: userId
-                }
-            })
-        }
-
-        if(!user){            
-            throw new Error("Usuário authenticado não foi cadastrado!")
-        }
-      
         const result = await prismaClient.companies.count({
             where:{
                 OR: [
                     {
                         ownerId: {
-                            equals: user.id
+                            equals: userId
                         }
                     },
                     {
                         group: { ///verifica se faz parte do grupo
-                            every: {
+                            some: {
                                 AND: [
                                     {
                                         memberId: {
-                                            equals: user.id
+                                            equals: userId
                                         },
                                         status: "APROVADO"
                                     }
@@ -197,108 +146,127 @@ export class CompanyController {
         return response.json(result);              
     } 
 
-    async searchAll(request: Request, response: Response) {
-        const { pag, name, userId } = request.params;
+    async searchAll(request: Request, response: Response){  
+        let {pag, name, userId} = request.params  
+        if(name=="null"){
+            var result = await prismaClient.companies.findMany({    
+                where:{
+                    OR: [
+                        {
+                            ownerId: {
+                                equals: userId
+                            }
+                        },
+                        {
+                            group: { ///verifica se faz parte do grupo
+                                some: {
+                                    AND: [
+                                        {
+                                            memberId: {
+                                                equals: userId
+                                            },
+                                            status: "APROVADO"
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    ]
+                },
 
+                include: {
+                    realeases: {
+                        orderBy: [
+                            {
+                                year: "desc",
+                            },
+                            {
+                                month: "desc",
+                            }
+                        ],
+                        take: 1 // Limita a consulta para trazer apenas o registro mais recente da TabelaB.
+                    },
+                    _count: {
+                        select: {
+                            partner: true,
+                            collaborator: true
+                        }
+                    }
+                },
+                // skip: Number(pag),
+                // take: 10,
+                orderBy: {
+                    date_create: 'desc'
+                }            
+            })
+        }else{
+            var result = await prismaClient.companies.findMany({    
+                where:{
+                    AND: [
+                        { 
+                            name: {
+                                contains: name
+                            }
+                        },
+                        {
+                            OR: [
+                                {
+                                    ownerId: {
+                                        equals: userId
+                                    }
+                                },
+                                {
+                                    group: {  ///verifica se faz parte do grupo
+                                        some: {
+                                            AND: [
+                                                {
+                                                    memberId: {
+                                                        equals: userId
+                                                    },
+                                                    status: "APROVADO"
+                                                }
+                                            ]
+                                        }
+                                    }
+                                }
+                            ]
+                        }
 
-        var user = await prismaClient.users.findUnique({
-            where: {            
-                id: userId
-            }            
-        })
-        if(!user){
-            user = await prismaClient.users.findUnique({
-                where: {
-                    email: userId
-                }
+                    ]
+                   
+                },   
+                include: {
+                    realeases: {
+                        orderBy: [
+                            {
+                                year: "desc",
+                            },
+                            {
+                                month: "desc",
+                            }
+                        ],
+                        take: 1 // Limita a consulta para trazer apenas o registro mais recente da TabelaB.
+                    },
+                    _count: {
+                        select: {
+                            partner: true,
+                            collaborator: true
+                        }
+                    }
+                },     
+                // skip: Number(pag),
+                // take: 10,
+                orderBy: {
+                    date_create: 'desc'
+                }            
             })
         }
-
-        if(!user){            
-            throw new Error("Usuário authenticado não foi cadastrado!")
-        }
-      
-        const where: any = {
-          OR: [
-            {
-              ownerId: {
-                equals: user.id
-              }
-            },
-            {
-              group: {
-                some: {
-                  AND: [
-                    {
-                      memberId: {
-                        equals: user.id
-                      },
-                      status: "APROVADO"
-                    }
-                  ]
-                }
-              }
-            }
-          ]
-        };
-      
-        if (name && name !== "null") {
-          where.OR.push({
-            name: {
-              contains: name
-            }
-          });
-        }
-      
-        const result = await prismaClient.companies.findMany({
-          where,
-          include: {
-            realeases: {
-              orderBy: [
-                {
-                  year: "desc"
-                },
-                {
-                  month: "desc"
-                }
-              ],
-              take: 1 // Limita a consulta para trazer apenas o registro mais recente da TabelaB.
-            },
-            _count: {
-              select: {
-                partner: true,
-                collaborator: true
-              }
-            }
-          },
-          orderBy: {
-            date_create: 'desc'
-          }
-        });
-      
-        return response.json(result);
+        
+        return response.json(result); 
     }
-      
 
     async delete(request: Request, response: Response){
         let { id, userId } = request.params
-        var user = await prismaClient.users.findUnique({
-            where: {            
-                id: userId
-            }            
-        })
-        if(!user){
-            user = await prismaClient.users.findUnique({
-                where: {
-                    email: userId
-                }
-            })
-        }
-
-        if(!user){            
-            throw new Error("Usuário authenticado não foi cadastrado!")
-        }
-      
         const companies = await prismaClient.companies.findMany({   
             where: {
                 AND: [
@@ -309,14 +277,14 @@ export class CompanyController {
                         OR: [
                             {
                                 ownerId: {
-                                    equals: user.id
+                                    equals: userId
                                 }
                             },
                             {
                                 group: {  ///verifica se faz parte do grupo
                                     some: {
                                         memberId: {
-                                            equals: user.id
+                                            equals: userId
                                         }
                                     }
                                 }
@@ -357,23 +325,6 @@ export class CompanyController {
             equity,
             authorId  
         } = request.body
-        var user = await prismaClient.users.findUnique({
-            where: {            
-                id: authorId
-            }            
-        })
-        if(!user){
-            user = await prismaClient.users.findUnique({
-                where: {
-                    email: authorId
-                }
-            })
-        }
-
-        if(!user){            
-            throw new Error("Usuário authenticado não foi cadastrado!")
-        }
-      
         const companies = await prismaClient.companies.findMany({   
             where: {
                 id                    
@@ -409,7 +360,7 @@ export class CompanyController {
                 phone,
                 website,
                 equity,
-                authorId: user.id
+                authorId
             }
         })   
         return response.json(result);           
@@ -419,22 +370,6 @@ export class CompanyController {
             id,
             userId
         } = request.body
-        var user = await prismaClient.users.findUnique({
-            where: {            
-                id: userId
-            }            
-        })
-        if(!user){
-            user = await prismaClient.users.findUnique({
-                where: {
-                    email: userId
-                }
-            })
-        }
-
-        if(!user){            
-            throw new Error("Usuário authenticado não foi cadastrado!")
-        }
         const avatar: string = String(request.file?.filename)
         const companies = await prismaClient.companies.findMany({   
             where: {
@@ -444,7 +379,7 @@ export class CompanyController {
                     },                    
                     {
                         ownerId: {
-                            equals: user.id
+                            equals: userId
                         }
                     },                           
 
