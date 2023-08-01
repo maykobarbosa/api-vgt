@@ -56,7 +56,58 @@ export class UserController {
 
         return response.json(user);
     }
+    async createWithGoogle(request: Request, response: Response){
+        const { 
+            email,
+            full_name,
+            avatar
+         } = request.body
 
+        //validar email
+        if(email) {
+            const result = await prismaClient.users.findMany({                
+                where: { 
+                    email: {
+                                equals: email
+                            }
+                        }
+            })
+            
+            if(result.length != 0){
+                throw Error("Já possui uma conta cadastrada com este e-mail!")
+            }
+        }       
+       
+        
+      
+        const checkPassword = bcrypt.hashSync("123456", 10)
+
+        const user = await prismaClient.users.create({
+            data: {
+                avatar,
+                email,
+                full_name,
+                fone: " ",
+                password: checkPassword,
+                profile: "100"
+            }
+        })
+
+        return response.json(user);
+    }
+    async existed(request: Request, response: Response){  
+        
+        
+        const {email} = request.params  
+        const result = await prismaClient.users.findUnique({
+            where: { 
+                email
+            }
+        })
+        
+        return response.json(result);   
+        
+    }
     async consultaOne(request: Request, response: Response){  
         
         
@@ -248,9 +299,8 @@ export class UserController {
         return response.status(200).json({ msg: "Autenticação realizada com sucesso!", token, user: {
             id: user.id,
             email: user.email,
-            full_name: user.full_name,
-            fone: user.fone,
-            profile: user.profile
+            name: user.full_name,
+            image: `${process.env.URL_PHOTOS_API}/img/people/${user.avatar}`
         }})
        
       

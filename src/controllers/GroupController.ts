@@ -8,12 +8,29 @@ export class GroupController {
             companyId,
             email
          } = request.body
+
+         var user = await prismaClient.users.findUnique({
+            where: {            
+                id: authorId
+            }            
+        })
+        if(!user){
+            user = await prismaClient.users.findUnique({
+                where: {
+                    email: authorId
+                }
+            })
+        }
+
+        if(!user){            
+            throw new Error("Usuário authenticado não foi cadastrado!")
+        }
         const valida = await prismaClient.companies.findMany({                
             where: { 
                 AND: [
                     {
                         ownerId: {
-                            equals: authorId
+                            equals: user.id
                         }
                     },
                     {
@@ -55,7 +72,7 @@ export class GroupController {
         }
         const result = await prismaClient.group.create({
             data: {
-                authorId,
+                authorId: user.id,
                 viewedNotification: false,
                 companyId,
                 memberId: validaUser.id,
@@ -67,6 +84,23 @@ export class GroupController {
     
     async delete(request: Request, response: Response){
         let { id, userId } = request.params
+        
+        var user = await prismaClient.users.findUnique({
+            where: {            
+                id: userId
+            }            
+        })
+        if(!user){
+            user = await prismaClient.users.findUnique({
+                where: {
+                    email: userId
+                }
+            })
+        }
+
+        if(!user){            
+            throw new Error("Usuário authenticado não foi cadastrado!")
+        }
         const group = await prismaClient.group.findMany({   
             where: {
                 AND: [
@@ -75,7 +109,7 @@ export class GroupController {
                     },
                     {
                         authorId: {
-                            equals: userId
+                            equals: user.id
                         }
                     }
 
@@ -125,11 +159,27 @@ export class GroupController {
         const { 
             memberId
          } = request.params
+        var user = await prismaClient.users.findUnique({
+            where: {            
+                id: memberId
+            }            
+        })
+        if(!user){
+            user = await prismaClient.users.findUnique({
+                where: {
+                    email: memberId
+                }
+            })
+        }
+
+        if(!user){            
+            throw new Error("Usuário authenticado não foi cadastrado!")
+        }
         const group = await prismaClient.group.findMany({   
             where: {
                 AND: [
                     { 
-                        memberId
+                        memberId: user.id
                     },
                     {
                         status:"PENDENTE"
@@ -153,11 +203,27 @@ export class GroupController {
         const { 
             authorId
          } = request.params
+         var user = await prismaClient.users.findUnique({
+            where: {            
+                id: authorId
+            }            
+        })
+        if(!user){
+            user = await prismaClient.users.findUnique({
+                where: {
+                    email: authorId
+                }
+            })
+        }
+
+        if(!user){            
+            throw new Error("Usuário authenticado não foi cadastrado!")
+        }
         const group = await prismaClient.group.findMany({   
             where: {
                 AND: [
                     { 
-                        authorId
+                        authorId: user.id
                     },
                     {
                         status:{

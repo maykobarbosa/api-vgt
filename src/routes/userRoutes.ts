@@ -15,12 +15,17 @@ userRoutes.post("/user",
     uploadAvatar.single("file"),
     (request,response) => User.create(request,response)
 )
+
+//criar usuario após login google
+userRoutes.post("/user-with-google", User.createWithGoogle)
 //login User
 userRoutes.post("/auth", User.authenticate)
 //refresh token
 userRoutes.post("/refresh-token-auth", User.refreshToken)
 //filtro Users
 // userRoutes.post("/users/consulta", User.consulta)
+//verifica se existe
+userRoutes.get("/users/verifica/:email", User.existed)
 //Busca user
 userRoutes.get("/users/consulta/:id", User.consultaOne)
 //listart Users
