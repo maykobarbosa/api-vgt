@@ -300,7 +300,7 @@ export class UserController {
             id: user.id,
             email: user.email,
             name: user.full_name,
-            image: `${process.env.URL_PHOTOS_API}/img/people/${user.avatar}`
+            avatar: `${process.env.URL_PHOTOS_API}/img/people/${user.avatar}`
         }})
        
       
@@ -331,25 +331,25 @@ export class UserController {
                 
                 const token = Jwt.sign({
                     id: user.id,
-                    email: user.email,
                     full_name: user.full_name,
-                    fone: user.fone,
-                    profile: user.profile
-                },"7d14e4b1831c8aa556f9720b5f74c4d7",
-                {
-                    subject: user.id,
-                    expiresIn: '30min'
-                }
-            )
+                    profile: user.profile,
+                    email: user.email
+                    },
+                    "7d14e4b1831c8aa556f9720b5f74c4d7",
+                    {
+                        subject: user.id,
+                        expiresIn: '30min'
+                    }
+                
+                )
 
         
-            return response.status(200).json({ msg: "Autenticação realizada com sucesso!", token, user: {
-                id: user.id,
-                email: user.email,
-                full_name: user.full_name,
-                fone: user.fone,
-                profile: user.profile
-            }})
+                return response.status(200).json({ msg: "Autenticação realizada com sucesso!", token, user: {
+                    id: user.id,
+                    email: user.email,
+                    name: user.full_name,
+                    avatar: `${process.env.URL_PHOTOS_API}/img/people/${user.avatar}`
+                }})
             }
             
 
