@@ -7,6 +7,7 @@ import { releasesRoutes } from "./releasesRoutes";
 import { partnerRoutes } from "./partnerRoutes";
 import { collaboratorRoutes } from "./collaboratorRoutes";
 import { groupRoutes } from "./groupRoutes";
+import { valuationRoutes } from "./valuationRoutes";
 
 
 const router = Router()
@@ -19,5 +20,6 @@ router.use(releasesRoutes)
 router.use(partnerRoutes)
 router.use(collaboratorRoutes)
 router.use(groupRoutes)
-        
+router.use(valuationRoutes)        
+
 export { router }
