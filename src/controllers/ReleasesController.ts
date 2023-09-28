@@ -7,7 +7,7 @@ export class ReleasesController {
             companyId,
             month,
             year,
-            valuation,
+            // valuation,
             lucroLiquido,
             receitaLiquida,
             despesaBruta,
@@ -75,7 +75,7 @@ export class ReleasesController {
                 companyId,
                 month,
                 year,
-                valuation,
+                // valuation,
                 lucroLiquido,
                 receitaLiquida,
                 despesaBruta,
@@ -158,7 +158,7 @@ export class ReleasesController {
     async update(request: Request, response: Response){
         const { 
             id,
-            valuation,
+            // valuation,
             lucroLiquido,
             receitaLiquida,
             despesaBruta,
@@ -203,7 +203,7 @@ export class ReleasesController {
                 id
             },
             data: {
-                valuation,
+                // valuation,
                 lucroLiquido,
                 receitaLiquida,
                 despesaBruta,
