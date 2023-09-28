@@ -11,75 +11,78 @@ datasource db {
 }
 
 model Users {
-  id              String @id @default(uuid())
-  email           String @unique
+  id    String @id @default(uuid())
+  email String @unique
 
-  avatar           String?
-  full_name   String
-  fone            String
-  password           String
-  profile          String
-  token_recover_password String? @unique
-  date_update DateTime @updatedAt
-  date_create DateTime @default(now())
+  avatar                 String?
+  full_name              String
+  fone                   String
+  password               String
+  profile                String
+  token_recover_password String?  @unique
+  date_update            DateTime @updatedAt
+  date_create            DateTime @default(now())
 
   companies Companies[]
-  releases Releases[]
-  group Group[]
+  releases  Releases[]
+  group     Group[]
+  Valuation Valuation[]
 
   @@map("usuarios")
 }
 
 model Companies {
-  id               String    @id @default(uuid())
-  avatar           String
-  name             String
+  id     String @id @default(uuid())
+  avatar String
+  name   String
 
-  description      String?
-  sector           String?
-  address          String?
-  city             String?
-  state            String?
-  zip              String?
-  email            String?
-  phone            String?
-  website          String?
+  description String?
+  sector      String?
+  address     String?
+  city        String?
+  state       String?
+  zip         String?
+  email       String?
+  phone       String?
+  website     String?
 
-  equity           Float?
-  
-  realeases Releases[]
-  partner Partner[]
+  equity Float?
+
+  realeases    Releases[]
+  partner      Partner[]
   collaborator Collaborator[]
-  group Group[]
+  group        Group[]
+  valuation    Valuation[]
 
-  owner           Users    @relation(fields: [ownerId], references: [id])
-  ownerId         String
+  owner   Users  @relation(fields: [ownerId], references: [id])
+  ownerId String
 
+  authorId String
 
-  authorId         String
-  
-  date_update      DateTime  @updatedAt
-  date_create      DateTime  @default(now())
+  date_update DateTime @updatedAt
+  date_create DateTime @default(now())
+
   @@map("empresas")
 }
 
-model Group{
-  id               String    @id @default(uuid()) 
+model Group {
+  id String @id @default(uuid())
 
-  status           Status 
+  status Status
 
-  company          Companies   @relation(fields: [companyId], references: [id])
-  companyId        String
+  company   Companies @relation(fields: [companyId], references: [id])
+  companyId String
 
-  member           Users    @relation(fields: [memberId], references: [id])
-  memberId         String
+  member   Users  @relation(fields: [memberId], references: [id])
+  memberId String
 
-  viewedNotification Boolean  
+  viewedNotification Boolean
 
-  authorId         String
+  authorId String
 
-  date_update      DateTime  @updatedAt
-  date_create      DateTime  @default(now())
+  date_update DateTime @updatedAt
+  date_create DateTime @default(now())
+
   @@map("grupo")
 }
 
@@ -89,92 +92,109 @@ enum Status {
   NEGADO
 }
 
+model Releases {
+  id String @id @default(uuid())
 
-model Releases{
-  id               String    @id @default(uuid()) 
+  month          Int
+  year           Int
+  valuation      Float?
+  lucroLiquido   Float
+  receitaLiquida Float
+  despesaBruta   Float
 
-  month            Int 
-  year             Int
-  valuation        Float
-  lucroLiquido     Float
-  receitaLiquida   Float
-  despesaBruta     Float
+  company   Companies @relation(fields: [companyId], references: [id])
+  companyId String
 
-  company          Companies   @relation(fields: [companyId], references: [id])
-  companyId        String
+  author   Users  @relation(fields: [authorId], references: [id])
+  authorId String
 
-  author           Users    @relation(fields: [authorId], references: [id])
-  authorId         String
+  date_update DateTime @updatedAt
+  date_create DateTime @default(now())
 
-  date_update      DateTime  @updatedAt
-  date_create      DateTime  @default(now())
   @@map("lancamentos")
 }
 
-
-model Department{
-  id              String @id @default(uuid())
+model Department {
+  id String @id @default(uuid())
 }
 
-model Partner{
-  id              String @id @default(uuid())
+model Partner {
+  id String @id @default(uuid())
 
-  people          People   @relation(fields: [peopleId], references: [id])
-  peopleId        String
+  people   People @relation(fields: [peopleId], references: [id])
+  peopleId String
 
-  company         Companies @relation(fields: [companyId], references: [id])
-  companyId       String
+  company   Companies @relation(fields: [companyId], references: [id])
+  companyId String
 
-  date_update      DateTime  @updatedAt
-  date_create      DateTime  @default(now())
+  date_update DateTime @updatedAt
+  date_create DateTime @default(now())
+
   @@map("socios")
 }
 
+model Collaborator {
+  id String @id @default(uuid())
 
-model Collaborator{
-  id              String @id @default(uuid())
+  people   People @relation(fields: [peopleId], references: [id])
+  peopleId String
 
-  people          People   @relation(fields: [peopleId], references: [id])
-  peopleId        String
+  company   Companies @relation(fields: [companyId], references: [id])
+  companyId String
 
-  company         Companies @relation(fields: [companyId], references: [id])
-  companyId       String
+  date_update DateTime @updatedAt
+  date_create DateTime @default(now())
 
-  date_update      DateTime  @updatedAt
-  date_create      DateTime  @default(now())
   @@map("colaboradores")
 }
 
 model People {
-  id                      String      @id @default(uuid())
-  avatar                  String
-  name                    String
-  office                  String
-  description             String
-  email                    String @unique
-  contact                 String
- 
-  partner Partner[]
+  id          String @id @default(uuid())
+  avatar      String
+  name        String
+  office      String
+  description String
+  email       String @unique
+  contact     String
+
+  partner      Partner[]
   collaborator Collaborator[]
 
-  date_update             DateTime    @updatedAt
-  date_create             DateTime    @default(now())
+  date_update DateTime @updatedAt
+  date_create DateTime @default(now())
+
   @@map("pessoa")
 }
 
-model Expenses{
-  id              String @id @default(uuid())
+model Expenses {
+  id String @id @default(uuid())
 }
 
-model StartUp{
-  id              String @id @default(uuid())
-  companyName  String
-  describe String @db.Text
-  sizeCompany String
+model StartUp {
+  id               String @id @default(uuid())
+  companyName      String
+  describe         String @db.Text
+  sizeCompany      String
   presentationLink String
-  usefulLink String
-  city String
-  phone String
+  usefulLink       String
+  city             String
+  phone            String
+
+  date_update DateTime @updatedAt
+  date_create DateTime @default(now())
+}
+
+model Valuation {
+  id String @id @default(uuid())
+
+  value Float
+  docs  String
+
+  company   Companies @relation(fields: [companyId], references: [id])
+  companyId String
+
+  author   Users  @relation(fields: [authorId], references: [id])
+  authorId String
 
   date_update DateTime @updatedAt
   date_create DateTime @default(now())
