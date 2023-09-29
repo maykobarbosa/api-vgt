@@ -46,8 +46,7 @@ export class ValuationController {
    
     async list(request: Request, response: Response){  
         const { 
-            companyId,
-            pag
+            companyId
         } = request.params
         const result = await prismaClient.valuation.findMany({                
             where: {
@@ -60,12 +59,33 @@ export class ValuationController {
             orderBy: {
                 date_create: "desc"
             },
-            skip: Number(pag) * 20,
-            take: 20,
+            // skip: Number(pag) * 20,
+            // take: 20,
         })
              
         return response.json(result);  
     }
+
+    async current(request: Request, response: Response){  
+        const { 
+            companyId
+        } = request.params
+        const result = await prismaClient.valuation.findFirst({                
+            where: {
+                companyId
+                
+            },
+            orderBy: {
+                date_create: "desc"
+            },
+            take: 1
+            // skip: Number(pag) * 20,
+            // take: 20,
+        })
+             
+        return response.json(result);  
+    }
+
     async delete(request: Request, response: Response){
         let { id } = request.params
         const valuation = await prismaClient.valuation.findMany({   

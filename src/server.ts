@@ -10,9 +10,9 @@ const app = express()
 app.use((req, res, next) => {
     res.header("Access-Control-Allow-Origin", "*")
     res.header("Access-Control-Allow-Headers", "*")
-    res.header("Origin, X-Requested-With, X-PINGOTHER, Content-Type, Accept, Authorization")
+    // res.header("Origin, X-Requested-With, X-PINGOTHER, Content-Type, Accept, Authorization")
     res.header("Access-Control-Allow-Methods", "POST, GET, PUT, DELETE")
-    res.setHeader('Cache-Control', 'public, s-maxage=10, stale-while-revalidate=59')
+    // res.setHeader('Cache-Control', 'public, s-maxage=10, stale-while-revalidate=59')
     app.use(cors({
         origin: true
       }))
