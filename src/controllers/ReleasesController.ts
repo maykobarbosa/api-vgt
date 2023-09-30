@@ -52,24 +52,24 @@ export class ReleasesController {
         if(validaAuthor.length == 0){
             throw Error("Autor não encontrado!")
         }
-        // const validaReleases = await prismaClient.releases.findMany({                
-        //     where: { 
-        //         AND: [
-        //             {
-        //                 companyId
-        //             },
-        //             {
-        //                 month
-        //             },
-        //             {
-        //                 year
-        //             }
-        //         ]
-        //     }
-        // })
-        // if(validaReleases.length != 0){
-        //     throw Error(`Você só pode fazer um lançamento por mês!`)
-        // }        
+        const validaReleases = await prismaClient.releases.findMany({                
+            where: { 
+                AND: [
+                    {
+                        companyId
+                    },
+                    {
+                        month
+                    },
+                    {
+                        year
+                    }
+                ]
+            }
+        })
+        if(validaReleases.length != 0){
+            throw Error(`Você só pode fazer um lançamento por mês!`)
+        }        
         const result = await prismaClient.releases.create({
             data: {
                 companyId,
