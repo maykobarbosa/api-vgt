@@ -7,12 +7,13 @@ export class ReleasesController {
             companyId,
             month,
             year,
-            // valuation,
             lucroLiquido,
             receitaLiquida,
             despesaBruta,
             authorId
-        } = request.body               
+        } = request.body     
+        const docs: string = String(request.file?.filename)
+
         var user = await prismaClient.users.findUnique({
             where: {            
                 id: authorId
@@ -59,10 +60,10 @@ export class ReleasesController {
                         companyId
                     },
                     {
-                        month
+                        month: Number(month)
                     },
                     {
-                        year
+                        year: Number(year)
                     }
                 ]
             }
@@ -73,12 +74,13 @@ export class ReleasesController {
         const result = await prismaClient.releases.create({
             data: {
                 companyId,
-                month,
-                year,
-                // valuation,
-                lucroLiquido,
-                receitaLiquida,
-                despesaBruta,
+                month: Number(month),
+                year: Number(year),
+                valuation: 0,
+                lucroLiquido: Number(lucroLiquido),
+                receitaLiquida: Number(receitaLiquida),
+                despesaBruta: Number(despesaBruta),
+                docs,
                 authorId: user.id
             }
         })
@@ -130,7 +132,7 @@ export class ReleasesController {
                 author: true
             },
             orderBy: {
-                month: "desc"
+                month: "asc"
             }
         })
         // if (result.length == 0) {

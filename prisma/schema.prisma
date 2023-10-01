@@ -102,6 +102,8 @@ model Releases {
   receitaLiquida Float
   despesaBruta   Float
 
+  docs  String?
+
   company   Companies @relation(fields: [companyId], references: [id])
   companyId String
 
