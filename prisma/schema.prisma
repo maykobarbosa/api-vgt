@@ -201,3 +201,26 @@ model Valuation {
   date_update DateTime @updatedAt
   date_create DateTime @default(now())
 }
+
+
+model Company{
+  id String @id @default(uuid())
+
+  isAdmin Boolean?
+
+  company_name String?
+  name String
+  email String @unique
+  phone String
+  cell_phone String?
+  password String
+
+  he_knew String
+  business String
+  help String
+
+  message String? @db.Text
+
+  date_update DateTime @updatedAt
+  date_create DateTime @default(now())
+}
