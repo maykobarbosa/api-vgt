@@ -9,7 +9,6 @@ import { decodeToken } from "../config/decodeToken";
 export class CompanyControllerMBL {
     async create(request: Request, response: Response){
         const {
-            company_name,
             name,
             email,
             phone,
@@ -22,19 +21,7 @@ export class CompanyControllerMBL {
         } = request.body;
 
         const resale_tax_certificate: string = String(request.file?.filename)
-        if(company_name) {
-            const valida = await prismaClient.company.findMany({                
-                where: { 
-                    company_name: {
-                            equals: company_name
-                        }
-                    }
-            })
-            if(valida.length != 0){
-                deleteFile(`./public/img/company/${resale_tax_certificate}`)
-                throw Error("You already have a company registered with this name!")
-            }
-        }       
+             
 
         if(email) {
             const valida = await prismaClient.company.findMany({                
@@ -52,7 +39,6 @@ export class CompanyControllerMBL {
         const checkPassword = await bcrypt.hashSync(password, 10)
         const company = await prismaClient.company.create({
             data: {
-              company_name,
               name,
               email,
               phone,
