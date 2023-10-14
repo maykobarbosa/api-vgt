@@ -186,6 +186,10 @@ export class CompanyController {
                         ],
                         take: 1 // Limita a consulta para trazer apenas o registro mais recente da TabelaB.
                     },
+                    valuation: {
+                        orderBy: { date_create: "desc"},
+                        take: 1
+                    },
                     _count: {
                         select: {
                             partner: true,
@@ -246,6 +250,10 @@ export class CompanyController {
                             }
                         ],
                         take: 1 // Limita a consulta para trazer apenas o registro mais recente da TabelaB.
+                    },
+                    valuation: {
+                        orderBy: { date_create: "desc"},
+                        take: 1
                     },
                     _count: {
                         select: {

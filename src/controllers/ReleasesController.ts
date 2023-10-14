@@ -7,12 +7,13 @@ export class ReleasesController {
             companyId,
             month,
             year,
-            valuation,
             lucroLiquido,
             receitaLiquida,
             despesaBruta,
             authorId
-        } = request.body               
+        } = request.body     
+        const docs: string = String(request.file?.filename)
+
         var user = await prismaClient.users.findUnique({
             where: {            
                 id: authorId
@@ -52,33 +53,34 @@ export class ReleasesController {
         if(validaAuthor.length == 0){
             throw Error("Autor não encontrado!")
         }
-        // const validaReleases = await prismaClient.releases.findMany({                
-        //     where: { 
-        //         AND: [
-        //             {
-        //                 companyId
-        //             },
-        //             {
-        //                 month
-        //             },
-        //             {
-        //                 year
-        //             }
-        //         ]
-        //     }
-        // })
-        // if(validaReleases.length != 0){
-        //     throw Error(`Você só pode fazer um lançamento por mês!`)
-        // }        
+        const validaReleases = await prismaClient.releases.findMany({                
+            where: { 
+                AND: [
+                    {
+                        companyId
+                    },
+                    {
+                        month: Number(month)
+                    },
+                    {
+                        year: Number(year)
+                    }
+                ]
+            }
+        })
+        if(validaReleases.length != 0){
+            throw Error(`Você só pode fazer um lançamento por mês!`)
+        }        
         const result = await prismaClient.releases.create({
             data: {
                 companyId,
-                month,
-                year,
-                valuation,
-                lucroLiquido,
-                receitaLiquida,
-                despesaBruta,
+                month: Number(month),
+                year: Number(year),
+                valuation: 0,
+                lucroLiquido: Number(lucroLiquido),
+                receitaLiquida: Number(receitaLiquida),
+                despesaBruta: Number(despesaBruta),
+                docs,
                 authorId: user.id
             }
         })
@@ -130,7 +132,7 @@ export class ReleasesController {
                 author: true
             },
             orderBy: {
-                month: "desc"
+                month: "asc"
             }
         })
         // if (result.length == 0) {
@@ -158,7 +160,7 @@ export class ReleasesController {
     async update(request: Request, response: Response){
         const { 
             id,
-            valuation,
+            // valuation,
             lucroLiquido,
             receitaLiquida,
             despesaBruta,
@@ -203,7 +205,7 @@ export class ReleasesController {
                 id
             },
             data: {
-                valuation,
+                // valuation,
                 lucroLiquido,
                 receitaLiquida,
                 despesaBruta,
