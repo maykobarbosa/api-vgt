@@ -20,8 +20,7 @@ export class CompanyControllerMBL {
             message
         } = request.body;
 
-        const resale_tax_certificate: string = String(request.file?.filename)
-             
+       
 
         if(email) {
             const valida = await prismaClient.company.findMany({                
@@ -32,7 +31,6 @@ export class CompanyControllerMBL {
                     }
             })
             if(valida.length != 0){
-                deleteFile(`./public/img/company/${resale_tax_certificate}`)
                 throw Error("You already have an account with this email!")
             }
         }  
@@ -81,15 +79,15 @@ export class CompanyControllerMBL {
         }
       
         const token = Jwt.sign({
-                id: user.id,
-                isAdmin: user.isAdmin
-            },
+            id: user.id,
+            isAdmin: user.isAdmin
+        },
             "7d14e4b1831c8aa556f9720b5f74c4d7",
             {
                 subject: user.id,
                 expiresIn: '30min'
             }
-          )
+        )
 
         
         return response.status(200).json({ msg: "Authentication success!", token, user: {            
@@ -97,8 +95,8 @@ export class CompanyControllerMBL {
             email: user.email,
             name: user.name,
             isAdmin: user.isAdmin,
-            company_name: user.company_name, 
-            phone: user.phone, 
+            full_name: user.name, 
+            fone: user.phone, 
             cell_phone : user.cell_phone
         }})
     }
@@ -106,7 +104,7 @@ export class CompanyControllerMBL {
         let {pag} = request.params          
         const authHeader = request.headers.authorization;
         const token = authHeader && authHeader.split(" ")[1];
-        const secret = process.env.SECRET_JWT;
+        const secret = "7d14e4b1831c8aa556f9720b5f74c4d7"
     
         if (!token) {
           return response.status(401).json({ message: "Invalid token" });
