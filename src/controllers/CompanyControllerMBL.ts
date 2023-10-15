@@ -79,15 +79,15 @@ export class CompanyControllerMBL {
         }
       
         const token = Jwt.sign({
-                id: user.id,
-                isAdmin: user.isAdmin
-            },
+            id: user.id,
+            isAdmin: user.isAdmin
+        },
             "7d14e4b1831c8aa556f9720b5f74c4d7",
             {
                 subject: user.id,
                 expiresIn: '30min'
             }
-          )
+        )
 
         
         return response.status(200).json({ msg: "Authentication success!", token, user: {            
@@ -95,8 +95,8 @@ export class CompanyControllerMBL {
             email: user.email,
             name: user.name,
             isAdmin: user.isAdmin,
-            company_name: user.company_name, 
-            phone: user.phone, 
+            full_name: user.name, 
+            fone: user.phone, 
             cell_phone : user.cell_phone
         }})
     }
