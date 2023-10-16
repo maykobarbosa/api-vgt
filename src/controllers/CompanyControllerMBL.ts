@@ -5,6 +5,7 @@ import { Request, Response } from "express";
 import Jwt from 'jsonwebtoken'
 import bcrypt from 'bcrypt'
 import { decodeToken } from "../config/decodeToken";
+import axios from "axios";
 
 export class CompanyControllerMBL {
     async create(request: Request, response: Response){
@@ -48,6 +49,59 @@ export class CompanyControllerMBL {
               message
             },
         });
+
+            const apiUrl = "https://app.whatsgw.com.br/api/WhatsGw/Send";
+            // Construa o objeto JSON com os dados da mensagem
+            const messageData = {
+              "apikey" : "22590b11-eee2-4235-a551-62b17ef42df3",
+              "phone_number" : "18639492315",
+              "contact_phone_number" : phone.toString(),
+              "message_custom_id" : "yoursoftwareid",
+              "message_type" : "text",
+              "message_body" : `Olá *${name}*, muito obrigado por se cadastrar em nosso sistema, aqui te manterei informado de todas as atualizações, seja muito bem vindo!`,
+              "check_status" : "1"
+            };
+            console.log(messageData)
+            // Envie a mensagem via WhatsApp
+            axios
+              .post(apiUrl, messageData)
+              .then((response) => {
+                console.log("Mensagem enviada com sucesso:", response.data);
+                // Lide com a resposta da API, se necessário
+              })
+              .catch((error) => {
+                console.error("Erro ao enviar a mensagem:", error);
+                // Lide com erros, se necessário
+              });
+        
+            const apiUrl2 = "https://app.whatsgw.com.br/api/WhatsGw/Send";
+            // Construa o objeto JSON com os dados da mensagem
+            const messageData2 = {
+              "apikey" : "22590b11-eee2-4235-a551-62b17ef42df3",
+              "phone_number" : "18639492315",
+              "contact_phone_number" : "16892623068",
+              "message_custom_id" : "yoursoftwareid",
+              "message_type" : "text",
+              "message_body" : `Um novo cadastro foi realizado na VGT\n\nNome: *${name}*\nTel: *${phone}*\nEmail: ${email}\n\nQual o seu negócio?\n*${business}*\n\nComo podemos te Ajudar?\n*${help}*\n\nOnde conheceu a VGT?\n*${he_knew}*`,
+              "check_status" : "1"
+            };
+            console.log(messageData)
+            // Envie a mensagem via WhatsApp
+            axios
+              .post(apiUrl2, messageData2)
+              .then((response) => {
+                console.log("Mensagem enviada com sucesso:", response.data);
+                // Lide com a resposta da API, se necessário
+              })
+              .catch((error) => {
+                console.error("Erro ao enviar a mensagem:", error);
+                // Lide com erros, se necessário
+              });
+
+
+
+
+
         return response.json(company);       
     }
 
