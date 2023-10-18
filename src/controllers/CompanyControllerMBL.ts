@@ -181,7 +181,33 @@ export class CompanyControllerMBL {
     }
 
     
+    async updatePhone(request: Request, response: Response){  
+      let {phone} = request.body          
+      const authHeader = request.headers.authorization;
+      const token = authHeader && authHeader.split(" ")[1];
+      const secret = "7d14e4b1831c8aa556f9720b5f74c4d7"
+  
+      if (!token) {
+        return response.status(401).json({ message: "Invalid token" });
+      }
+  
+      const decoded = decodeToken(token, String(secret));
+      if (!decoded) {
+        throw Error("Error decoding token!");
+      }
+      if(!decoded.isAdmin){
+          throw Error("Access denied")
+      }
 
-
-
+      const result = await prismaClient.company.update({
+        where: {
+          id: decoded.id
+        },
+        data: {
+          phone
+        }
+      })
+      
+      return response.json(result); 
+  }
 }
