@@ -139,7 +139,7 @@ export class CompanyControllerMBL {
             "7d14e4b1831c8aa556f9720b5f74c4d7",
             {
                 subject: user.id,
-                expiresIn: '30min'
+                expiresIn: '1h'
             }
         )
 
