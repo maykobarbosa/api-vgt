@@ -74,7 +74,6 @@ export class CompanyControllerMBL {
                 // Lide com erros, se necessário
               });
         
-            const apiUrl2 = "https://app.whatsgw.com.br/api/WhatsGw/Send";
             // Construa o objeto JSON com os dados da mensagem
             const messageData2 = {
               "apikey" : "22590b11-eee2-4235-a551-62b17ef42df3",
@@ -88,7 +87,7 @@ export class CompanyControllerMBL {
             console.log(messageData)
             // Envie a mensagem via WhatsApp
             axios
-              .post(apiUrl2, messageData2)
+              .post(apiUrl, messageData2)
               .then((response) => {
                 console.log("Mensagem enviada com sucesso:", response.data);
                 // Lide com a resposta da API, se necessário
