@@ -176,7 +176,22 @@ export class CompanyControllerMBL {
             take: 20,
             orderBy: { date_update: "desc" },
         })
-        return response.json(result); 
+        return response.json(result.map((i)=>
+          ({
+          id:i.id,
+          isAdmin:i.isAdmin,
+          company_name: i.company_name,
+          name: i.name,
+          email:i.email,
+          phone:i.phone,
+          cell_phone:i.cell_phone,
+          he_knew:i.he_knew,
+          business:i.business,
+          help:i.help,
+          message:i.message,
+          date_update:i.date_update,
+          date_create:i.date_create,
+        }))); 
     }
 
     

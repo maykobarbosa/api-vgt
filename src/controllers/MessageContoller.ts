@@ -9,11 +9,11 @@ export class MessageController {
          } = request.body
          const apiUrl = "https://app.whatsgw.com.br/api/WhatsGw/Send";
         // Construa o objeto JSON com os dados da mensagem
-        for (const phone of phones) {
+        for (const i of phones) {
             const messageData = {
                 "apikey" : "22590b11-eee2-4235-a551-62b17ef42df3",
                 "phone_number" : "18639492315",
-                "contact_phone_number" : phone.toString(),
+                "contact_phone_number" : i.phone.toString(),
                 "message_custom_id" : "yoursoftwareid",
                 "message_type" : "text",
                 "message_body" : `${message}`,
