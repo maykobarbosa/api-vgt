@@ -3,6 +3,7 @@ import { UserController } from "../controllers/UserController";
 import multer from "multer";
 
 import uploadConfig from "../config/upload";
+import { checkToken } from "../middlewares/validaToken";
 
 const userRoutes = Router()
 
@@ -15,11 +16,13 @@ userRoutes.post("/user",
     uploadAvatar.single("file"),
     (request,response) => User.create(request,response)
 )
+userRoutes.post("/user2", User.create2)
 
 //criar usuario após login google
 userRoutes.post("/user-with-google", User.createWithGoogle)
 //login User
 userRoutes.post("/auth", User.authenticate)
+userRoutes.post("/auth2", User.authenticate2)
 //refresh token
 userRoutes.post("/refresh-token-auth", User.refreshToken)
 //filtro Users
@@ -30,6 +33,7 @@ userRoutes.get("/users/verifica/:email", User.existed)
 userRoutes.get("/users/consulta/:id", User.consultaOne)
 //listart Users
 userRoutes.get("/users/:pag", User.list)
+userRoutes.get("/users/search-by-status/:pag", User.findByStatus)
 //qtd de Users
 userRoutes.get("/users-count", User.totalUsers)
 
@@ -46,5 +50,7 @@ userRoutes.delete("/users/:email", User.delete)
 userRoutes.post('/recover-password', User.sendMailRecover)
 
 userRoutes.post('/create-password', User.updatePassword)
+
+userRoutes.put("/user/update/phone", checkToken, User.updatePhone)
 
 export { userRoutes }

@@ -14,11 +14,21 @@ model Users {
   id    String @id @default(uuid())
   email String @unique
 
+  isAdmin Boolean?
+  status Boolean?
+
   avatar                 String?
   full_name              String
   fone                   String
   password               String
   profile                String
+
+  he_knew String?
+  business String?
+  help String?
+
+  message String? @db.Text
+
   token_recover_password String?  @unique
   date_update            DateTime @updatedAt
   date_create            DateTime @default(now())
@@ -202,25 +212,3 @@ model Valuation {
   date_create DateTime @default(now())
 }
 
-
-model Company{
-  id String @id @default(uuid())
-
-  isAdmin Boolean?
-
-  company_name String?
-  name String
-  email String @unique
-  phone String
-  cell_phone String?
-  password String
-
-  he_knew String
-  business String
-  help String
-
-  message String? @db.Text
-
-  date_update DateTime @updatedAt
-  date_create DateTime @default(now())
-}
