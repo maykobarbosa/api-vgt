@@ -6,6 +6,9 @@ import nodemailer from 'nodemailer';
 import { RecoverPassword } from "../templateEmail/recoverPassword";
 import crypto from 'crypto';
 import { deleteFile } from "../config/file";
+import axios from "axios";
+import { SendMessageToAdmin, SendMessageToMe } from "../utils/sendMessage";
+import { decodeToken } from "../config/decodeToken";
 interface Payload extends JwtPayload {
     id: string
     exp: number
@@ -53,6 +56,68 @@ export class UserController {
                 profile
             }
         })
+        await SendMessageToMe(
+            fone.toString(), 
+            `Olá *${full_name}*, muito obrigado por se cadastrar em nosso sistema, aqui te manterei informado de todas as atualizações, seja muito bem vindo!`
+        )
+        
+        return response.json(user);
+    }
+    async create2(request: Request, response: Response){
+        const { 
+            email,
+            full_name,
+            fone,
+            password,
+
+            he_knew,
+            business,
+            help,
+            message,
+
+            profile
+         } = request.body
+
+        //validar email
+        if(email) {
+            const result = await prismaClient.users.findMany({                
+                where: { 
+                    email: {
+                                equals: email
+                            }
+                        }
+            })
+            
+            if(result.length != 0){
+                throw Error("Já possui uma conta cadastrada com este e-mail!")
+            }
+        }       
+               
+       
+        const checkPassword = bcrypt.hashSync(password, 10)
+
+        const user = await prismaClient.users.create({
+            data: {
+                email,
+                full_name,
+                fone,
+
+                he_knew,
+                business,
+                help,
+                message,
+
+                password: checkPassword,
+                profile
+            }
+        })
+        await SendMessageToMe(
+            fone.toString(), 
+            `Olá *${full_name.toUpperCase()}*, muito obrigado por se cadastrar em nosso sistema, aqui te manterei informado de todas as atualizações, seja muito bem vindo!`
+        )
+        await SendMessageToAdmin(
+            `Um novo cadastro foi realizado na VGT\n\nNome: *${full_name.toUpperCase()}*\nTel: *${fone}*\nEmail: ${email}\n\nQual o seu negócio?\n*${business}*\n\nComo podemos te Ajudar?\n*${help}*\n\nOnde conheceu a VGT?\n*${he_knew}*`
+        )
 
         return response.json(user);
     }
@@ -122,120 +187,7 @@ export class UserController {
             return response.json(result);   
         }
     }
-    // async consulta(request: Request, response: Response){  
-        
-    //     const {id, nome, cpf, matricula, perfil, pag } = request.body
-    //     if(id) {
-    //         const result = await prismaClient.users.findMany({
-    //             // skip: Number(pag),
-    //             // take: 10,
-    //             orderBy: {
-    //                 full_name: "asc"
-    //             },
-    //             where: { 
-                   
-    //                         id: {
-    //                             equals: id
-    //                         }
-                       
-                    
-    //             }
-    //         })
-            
-    //         return response.json(result);   
-    //     }else if(perfil){
-    //         const result = await prismaClient.users.findMany({
-    //             // skip: Number(pag),
-    //             // take: 10,
-    //             orderBy: {
-    //                 full_name: "asc"
-    //             },
-    //             where: { 
-    //                 AND: [
-    //                     {
-    //                         perfil: {
-    //                             equals: perfil
-    //                         }
-    //                     },
-    //                     {
-    //                         OR: [
-    //                             {
-    //                                 nome_completo: {
-    //                                     contains: nome
-    //                                 }
-    //                             },
-    //                             {
-    //                                 nome_guerra: {
-    //                                     contains: nome
-    //                                 }
-    //                             }
-    //                         ]    
-    //                     }
-    //                 ]
-                                   
-    //             }   
-    //         })
-            
-    //         return response.json(result); 
-    //     }else if(nome) {
-    //         const result = await prismaClient.users.findMany({
-    //             // skip: Number(pag),
-    //             // take: 10,
-    //             orderBy: {
-    //                 nome_completo: "asc"
-    //             },
-    //             where: { 
-    //                 OR: [
-    //                     {
-    //                         nome_completo: {
-    //                             contains: nome
-    //                         }
-    //                     },
-    //                     {
-    //                         nome_guerra: {
-    //                             contains: nome
-    //                         }
-    //                     }
-    //                 ]
-                    
-    //             }
-    //         })
-            
-    //         return response.json(result);   
-    //     }else if(cpf){
-    //         const result = await prismaClient.users.findMany({
-    //             // skip: Number(pag),
-    //             // take: 10,
-    //             orderBy: {
-    //                 nome_completo: "asc"
-    //             },
-    //             where: { 
-    //                 cpf: {
-    //                     contains: cpf
-    //                 }
-    //             }         
-    //         })
-            
-    //         return response.json(result); 
-    //     }else if(matricula){
-    //         const result = await prismaClient.users.findMany({
-    //             // skip: Number(pag),
-    //             // take: 10,
-    //             orderBy: {
-    //                 nome_completo: "asc"
-    //             },
-    //             where: { 
-    //                 matricula: {
-    //                     contains: matricula
-    //                 }
-    //             }         
-    //         })
-            
-    //         return response.json(result); 
-        
-    //     }
-    // }
-
+  
     async totalUsers(request: Request, response: Response){  
         const result = await prismaClient.users.count()
         return response.json(result);              
@@ -253,6 +205,45 @@ export class UserController {
         })
         return response.json(result);   
         
+    }
+
+    async findByStatus(request: Request, response: Response){  
+        let {pag} = request.params          
+        const authHeader = request.headers.authorization;
+        const token = authHeader && authHeader.split(" ")[1];
+        const secret = "7d14e4b1831c8aa556f9720b5f74c4d7"
+    
+        if (!token) {
+          return response.status(401).json({ message: "Invalid token" });
+        }
+    
+        const decoded = decodeToken(token, String(secret));
+        if (!decoded) {
+          throw Error("Error decoding token!");
+        }
+        if(!decoded.isAdmin){
+            throw Error("Access denied")
+        }
+
+        const result = await prismaClient.users.findMany({
+            skip: Number(pag) * 20,
+            take: 20,
+            orderBy: { date_update: "desc" },
+        })
+        return response.json(result.map((i)=>
+          ({
+          id:i.id,
+          isAdmin:i.isAdmin,
+          name: i.full_name,
+          email:i.email,
+          phone:i.fone,
+          he_knew:i.he_knew,
+          business:i.business,
+          help:i.help,
+          message:i.message,
+          date_update:i.date_update,
+          date_create:i.date_create,
+        }))); 
     }
 
     async authenticate(request: Request, response: Response){
@@ -291,7 +282,7 @@ export class UserController {
             "7d14e4b1831c8aa556f9720b5f74c4d7",
             {
                 subject: user.id,
-                expiresIn: '30min'
+                expiresIn: '1h'
             }
           )
 
@@ -301,9 +292,90 @@ export class UserController {
             email: user.email,
             name: user.full_name,
             avatar: `${process.env.URL_PHOTOS_API}/img/people/${user.avatar}`
-        }})
-       
+        }})       
       
+    }
+
+    async authenticate2(request: Request, response: Response){
+        const { email, password } = request.body
+      
+        if (!email) {
+            throw new Error("O e-mail é obrigatório!")
+        }
+        if (!password) {
+            throw new Error("A senha é obrigatória!" )
+        }
+        ///check if user exists
+        const user = await prismaClient.users.findUnique({   
+            where: {
+                email
+            }
+        })
+      
+        if (!user) {
+          throw new Error("Usuário não encontrado!")
+        }
+      
+        // check if password match
+        const checkPassword = await bcrypt.compare(password, user.password)
+      
+        if (!checkPassword) {
+            throw new Error("E-mail e/ou senha incorretos!")
+        }      
+        
+
+        const token = Jwt.sign({
+            id: user.id,
+            isAdmin: user.isAdmin
+        },
+            "7d14e4b1831c8aa556f9720b5f74c4d7",
+            {
+                subject: user.id,
+                expiresIn: '1h'
+            }
+        )
+
+        
+        return response.status(200).json({ msg: "Authentication success!", token, user: {            
+            id: user.id,
+            email: user.email,
+            isAdmin: user.isAdmin,
+            full_name: user.full_name, 
+            fone: user.fone, 
+            profile: user.profile,
+            avatar: `${process.env.URL_PHOTOS_API}/img/people/${user.avatar}`
+        }})           
+      
+    }
+
+    async updatePhone(request: Request, response: Response){  
+        let {phone} = request.body          
+        const authHeader = request.headers.authorization;
+        const token = authHeader && authHeader.split(" ")[1];
+        const secret = "7d14e4b1831c8aa556f9720b5f74c4d7"
+    
+        if (!token) {
+          return response.status(401).json({ message: "Invalid token" });
+        }
+    
+        const decoded = decodeToken(token, String(secret));
+        if (!decoded) {
+          throw Error("Error decoding token!");
+        }
+        if(!decoded.isAdmin){
+            throw Error("Access denied")
+        }
+  
+        const result = await prismaClient.users.update({
+          where: {
+            id: decoded.id
+          },
+          data: {
+            fone: phone
+          }
+        })
+        
+        return response.json(result); 
     }
 
     async refreshToken(request: Request, response: Response){
@@ -489,7 +561,7 @@ export class UserController {
         const mailOptions = {
             from: SMTP_CONFIG.user,
             to: email,
-            subject: "NOCTUA - Redefinição de senha",
+            subject: "VGT - Redefinição de senha",
             html: templateEmail, 
         };
     
