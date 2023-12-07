@@ -121,6 +121,71 @@ export class UserController {
 
         return response.json(user);
     }
+    async create3(request: Request, response: Response){
+        const { 
+            email,
+            full_name,
+            fone,
+            password,
+
+            how_long_do_you_invest,
+            main_investments,
+            sources_of_income,
+            annual_income_ornet_worth,
+            goal,
+            what_are_your_growth_expectations,
+            link_or_social_networks,
+
+            profile
+         } = request.body
+
+        //validar email
+        if(email) {
+            const result = await prismaClient.users.findMany({                
+                where: { 
+                    email: {
+                                equals: email
+                            }
+                        }
+            })
+            
+            if(result.length != 0){
+                throw Error("Já possui uma conta cadastrada com este e-mail!")
+            }
+        }       
+               
+       
+        const checkPassword = bcrypt.hashSync(password, 10)
+
+        const user = await prismaClient.users.create({
+            data: {
+                email,
+                full_name,
+                fone,
+
+                how_long_do_you_invest,
+                main_investments,
+                sources_of_income,
+                annual_income_ornet_worth,
+                goal,
+                what_are_your_growth_expectations,
+                link_or_social_networks,
+
+                password: checkPassword,
+                isInvestor: true,
+                profile
+            }
+        })
+        // await SendMessageToMe(
+        //     fone.toString(), 
+        //     `Olá *${full_name.toUpperCase()}*, muito obrigado por se cadastrar em nosso sistema, aqui te manterei informado de todas as atualizações, seja muito bem vindo!`
+        // )
+        // await SendMessageToAdmin(
+        //     `Um novo cadastro foi realizado na VGT\n\nNome: *${full_name.toUpperCase()}*\nTel: *${fone}*\nEmail: ${email}\n\nQual o seu negócio?\n*${business}*\n\nComo podemos te Ajudar?\n*${help}*\n\nOnde conheceu a VGT?\n*${he_knew}*`
+        // )
+
+        return response.json(user);
+    }
     async createWithGoogle(request: Request, response: Response){
         const { 
             email,

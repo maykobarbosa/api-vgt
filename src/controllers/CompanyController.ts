@@ -114,6 +114,36 @@ export class CompanyController {
         return response.json(companies[0]);  
     }
 
+    async byId(request: Request, response: Response){  
+        let {id} = request.params  
+        const result = await prismaClient.companies.findUnique({   
+            where: {id},
+            include: {
+                realeases: {
+                    orderBy: [
+                        {
+                            year: "desc",
+                        },
+                        {
+                            month: "desc",
+                        }
+                    ],
+                    take: 1 // Limita a consulta para trazer apenas o registro mais recente da TabelaB.
+                },
+                _count: {
+                    select: {
+                        partner: true,
+                        collaborator: true
+                    }
+                }
+            },
+              
+        })
+        if (!result) {
+            throw new Error("Empresa não encontrada!")
+        }
+        return response.json(result);  
+    }
    
     async total(request: Request, response: Response){  
 
@@ -273,6 +303,24 @@ export class CompanyController {
         return response.json(result); 
     }
 
+    async list(request: Request, response: Response){  
+        let {pag} = request.params  
+        
+        var result = await prismaClient.companies.findMany({            
+            skip: Number(pag)*9,
+            take: 9,
+            orderBy: {
+                date_create: 'desc'
+            }            
+        })        
+        var total = await prismaClient.companies.count()
+
+        return response.json({
+            companies: result,
+            total
+        }); 
+    }
+
     async delete(request: Request, response: Response){
         let { id, userId } = request.params
         const companies = await prismaClient.companies.findMany({   
@@ -315,7 +363,6 @@ export class CompanyController {
         deleteFile(`./public/img/company/${companies[0].avatar}`)
         return response.json();            
     }
-
 
     async update(request: Request, response: Response){
         const { 
@@ -373,6 +420,7 @@ export class CompanyController {
         })   
         return response.json(result);           
     }
+
     async updateAvatar(request: Request, response: Response){
         const { 
             id,

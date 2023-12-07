@@ -15,6 +15,7 @@ model Users {
   email String @unique
 
   isAdmin Boolean?
+  isInvestor Boolean?
   status Boolean?
 
   avatar                 String?
@@ -28,6 +29,16 @@ model Users {
   help String?
 
   message String? @db.Text
+
+  how_long_do_you_invest String?
+  main_investments String?
+  sources_of_income String?
+  annual_income_ornet_worth String?
+  goal String?
+  what_are_your_growth_expectations String? @db.Text
+  link_or_social_networks String?
+
+
 
   token_recover_password String?  @unique
   date_update            DateTime @updatedAt

@@ -16,7 +16,10 @@ userRoutes.post("/user",
     uploadAvatar.single("file"),
     (request,response) => User.create(request,response)
 )
+//procurando investimento
 userRoutes.post("/user2", User.create2)
+//investidor
+userRoutes.post("/user3", User.create3)
 
 //criar usuario após login google
 userRoutes.post("/user-with-google", User.createWithGoogle)
