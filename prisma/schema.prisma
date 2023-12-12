@@ -14,15 +14,18 @@ model Users {
   id    String @id @default(uuid())
   email String @unique
 
-  isAdmin Boolean?
-  isInvestor Boolean?
-  status Boolean?
+  status String?
 
   avatar                 String?
   full_name              String
   fone                   String
   password               String
   profile                String
+  birth                  String?
+
+
+
+
 
   he_knew String?
   business String?
@@ -38,8 +41,6 @@ model Users {
   what_are_your_growth_expectations String? @db.Text
   link_or_social_networks String?
 
-
-
   token_recover_password String?  @unique
   date_update            DateTime @updatedAt
   date_create            DateTime @default(now())
@@ -48,6 +49,8 @@ model Users {
   releases  Releases[]
   group     Group[]
   Valuation Valuation[]
+
+  authorId String?
 
   @@map("usuarios")
 }
@@ -68,6 +71,8 @@ model Companies {
   website     String?
 
   equity Float?
+
+  status String?
 
   realeases    Releases[]
   partner      Partner[]

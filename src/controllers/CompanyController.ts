@@ -181,27 +181,37 @@ export class CompanyController {
         if(name=="null"){
             var result = await prismaClient.companies.findMany({    
                 where:{
-                    OR: [
+                    AND: [
                         {
-                            ownerId: {
-                                equals: userId
+                            status: {
+                                equals: "approved"
                             }
                         },
                         {
-                            group: { ///verifica se faz parte do grupo
-                                some: {
-                                    AND: [
-                                        {
-                                            memberId: {
-                                                equals: userId
-                                            },
-                                            status: "APROVADO"
+                            OR: [
+                                {
+                                    ownerId: {
+                                        equals: userId
+                                    }
+                                },
+                                {
+                                    group: { ///verifica se faz parte do grupo
+                                        some: {
+                                            AND: [
+                                                {
+                                                    memberId: {
+                                                        equals: userId
+                                                    },
+                                                    status: "APROVADO"
+                                                }
+                                            ]
                                         }
-                                    ]
+                                    }
                                 }
-                            }
+                            ]
                         }
                     ]
+                        
                 },
 
                 include: {
@@ -240,6 +250,11 @@ export class CompanyController {
                         { 
                             name: {
                                 contains: name
+                            }
+                        },
+                        {
+                            status: {
+                                equals: "approved"
                             }
                         },
                         {
@@ -306,19 +321,72 @@ export class CompanyController {
     async list(request: Request, response: Response){  
         let {pag} = request.params  
         
-        var result = await prismaClient.companies.findMany({            
+        var result = await prismaClient.companies.findMany({     
+            where: {
+                status: {
+                    equals: "approved"
+                }
+            },
             skip: Number(pag)*9,
             take: 9,
             orderBy: {
                 date_create: 'desc'
             }            
         })        
-        var total = await prismaClient.companies.count()
+        var total = await prismaClient.companies.count({
+            where: {
+                status: {
+                    equals: "approved"
+                }
+            },
+        })
 
         return response.json({
             companies: result,
             total
         }); 
+    }
+    async listByStatus(request: Request, response: Response){  
+        let {status,pag} = request.params  
+        
+        var result = await prismaClient.companies.findMany({     
+            where: {
+                status: {
+                    equals: status
+                }
+            },
+            skip: Number(pag)*9,
+            take: 9,
+            orderBy: {
+                date_create: 'desc'
+            }            
+        })        
+        var total = await prismaClient.companies.count({
+            where: {
+                status: {
+                    equals: status
+                }
+            },
+        })
+
+        return response.json({
+            companies: result,
+            total
+        }); 
+    }
+
+    async validCompany(request: Request, response: Response){
+        const {status, id, authorId} = request.body
+
+        const result = await prismaClient.companies.update({
+            where: id,
+            data: {
+                status,
+                authorId
+            }
+        })
+
+        return response.json(result)
     }
 
     async delete(request: Request, response: Response){

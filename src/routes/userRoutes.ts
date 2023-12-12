@@ -25,7 +25,7 @@ userRoutes.post("/user3", User.create3)
 userRoutes.post("/user-with-google", User.createWithGoogle)
 //login User
 userRoutes.post("/auth", User.authenticate)
-userRoutes.post("/auth2", User.authenticate2)
+// userRoutes.post("/auth2", User.authenticate2)
 //refresh token
 userRoutes.post("/refresh-token-auth", User.refreshToken)
 //filtro Users
@@ -55,5 +55,10 @@ userRoutes.post('/recover-password', User.sendMailRecover)
 userRoutes.post('/create-password', User.updatePassword)
 
 userRoutes.put("/user/update/phone", checkToken, User.updatePhone)
+
+userRoutes.put("/valid-user", User.validUser)
+userRoutes.get("/users/by-status-investor/:status/:pag", User.findByStatusInvestor)
+
+
 
 export { userRoutes }

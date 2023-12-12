@@ -172,7 +172,7 @@ export class UserController {
                 link_or_social_networks,
 
                 password: checkPassword,
-                isInvestor: true,
+                
                 profile
             }
         })
@@ -251,13 +251,11 @@ export class UserController {
             
             return response.json(result);   
         }
-    }
-  
+    }  
     async totalUsers(request: Request, response: Response){  
         const result = await prismaClient.users.count()
         return response.json(result);              
     } 
-
     async list(request: Request, response: Response){  
         let {pag} = request.params  
         
@@ -271,7 +269,6 @@ export class UserController {
         return response.json(result);   
         
     }
-
     async findByStatus(request: Request, response: Response){  
         let {pag} = request.params          
         const authHeader = request.headers.authorization;
@@ -286,9 +283,6 @@ export class UserController {
         if (!decoded) {
           throw Error("Error decoding token!");
         }
-        if(!decoded.isAdmin){
-            throw Error("Access denied")
-        }
 
         const result = await prismaClient.users.findMany({
             skip: Number(pag) * 20,
@@ -298,7 +292,6 @@ export class UserController {
         return response.json(result.map((i)=>
           ({
           id:i.id,
-          isAdmin:i.isAdmin,
           name: i.full_name,
           email:i.email,
           phone:i.fone,
@@ -310,7 +303,6 @@ export class UserController {
           date_create:i.date_create,
         }))); 
     }
-
     async authenticate(request: Request, response: Response){
         const { email, password } = request.body
       
@@ -324,56 +316,9 @@ export class UserController {
         const user = await prismaClient.users.findUnique({   
             where: {
                 email
-            }
-        })
-      
-        if (!user) {
-          throw new Error("Usuário não encontrado!")
-        }
-      
-        // check if password match
-        const checkPassword = await bcrypt.compare(password, user.password)
-      
-        if (!checkPassword) {
-            throw new Error("E-mail e/ou senha incorretos!")
-        }      
-        
-        const token = Jwt.sign({
-                id: user.id,
-                full_name: user.full_name,
-                profile: user.profile,
-                email: user.email
             },
-            "7d14e4b1831c8aa556f9720b5f74c4d7",
-            {
-                subject: user.id,
-                expiresIn: '1h'
-            }
-          )
-
-        
-        return response.status(200).json({ msg: "Autenticação realizada com sucesso!", token, user: {
-            id: user.id,
-            email: user.email,
-            name: user.full_name,
-            avatar: `${process.env.URL_PHOTOS_API}/img/people/${user.avatar}`
-        }})       
-      
-    }
-
-    async authenticate2(request: Request, response: Response){
-        const { email, password } = request.body
-      
-        if (!email) {
-            throw new Error("O e-mail é obrigatório!")
-        }
-        if (!password) {
-            throw new Error("A senha é obrigatória!" )
-        }
-        ///check if user exists
-        const user = await prismaClient.users.findUnique({   
-            where: {
-                email
+            include: {
+                companies: true
             }
         })
       
@@ -388,10 +333,8 @@ export class UserController {
             throw new Error("E-mail e/ou senha incorretos!")
         }      
         
-
         const token = Jwt.sign({
             id: user.id,
-            isAdmin: user.isAdmin
         },
             "7d14e4b1831c8aa556f9720b5f74c4d7",
             {
@@ -399,20 +342,25 @@ export class UserController {
                 expiresIn: '1h'
             }
         )
+        var isCompanyAproved = false
+        const i = user.companies.filter(i=> i.status === "approved")
+        if(i.length>0){
+            isCompanyAproved = true
+        }
+        
 
         
         return response.status(200).json({ msg: "Authentication success!", token, user: {            
             id: user.id,
             email: user.email,
-            isAdmin: user.isAdmin,
             full_name: user.full_name, 
             fone: user.fone, 
             profile: user.profile,
+            isCompanyAproved,
             avatar: `${process.env.URL_PHOTOS_API}/img/people/${user.avatar}`
         }})           
       
     }
-
     async updatePhone(request: Request, response: Response){  
         let {phone} = request.body          
         const authHeader = request.headers.authorization;
@@ -442,7 +390,6 @@ export class UserController {
         
         return response.json(result); 
     }
-
     async refreshToken(request: Request, response: Response){
         const { refreshToken } = request.body;
       
@@ -458,7 +405,14 @@ export class UserController {
                 return response.status(401).send("Token expirado!");
             } else {
                // Procura pelo usuário no banco de dados
-                const user = await prismaClient.users.findUnique({ where: { id: decoded.id } });
+                const user = await prismaClient.users.findUnique({
+                    where: { 
+                        id: decoded.id 
+                    },
+                    include: {
+                        companies: true
+                    } 
+                });
             
                 if (!user) {
                     return response.status(401).send("Invalid refresh token");
@@ -466,27 +420,31 @@ export class UserController {
                 
                 // Gera um novo token de acesso com uma nova data de expiração
                 
+               
                 const token = Jwt.sign({
                     id: user.id,
-                    full_name: user.full_name,
-                    profile: user.profile,
-                    email: user.email
-                    },
+                },
                     "7d14e4b1831c8aa556f9720b5f74c4d7",
                     {
                         subject: user.id,
-                        expiresIn: '30min'
+                        expiresIn: '1h'
                     }
-                
                 )
-
-        
-                return response.status(200).json({ msg: "Autenticação realizada com sucesso!", token, user: {
+                var isCompanyAproved = false
+                const i = user.companies.filter(i=> i.status === "approved")
+                if(i.length>0){
+                    isCompanyAproved = true
+                }
+                
+                return response.status(200).json({ msg: "Authentication success!", token, user: {            
                     id: user.id,
                     email: user.email,
-                    name: user.full_name,
+                    full_name: user.full_name, 
+                    fone: user.fone, 
+                    profile: user.profile,
+                    isCompanyAproved,
                     avatar: `${process.env.URL_PHOTOS_API}/img/people/${user.avatar}`
-                }})
+                }})           
             }
             
 
@@ -497,7 +455,6 @@ export class UserController {
        
       
     }
-
     async delete(request: Request, response: Response){
         let { email } = request.params
 
@@ -508,12 +465,8 @@ export class UserController {
             
         })        
 
-        return response.json();       
-
-        
+        return response.json();              
     }
-
-
     async update(request: Request, response: Response){
         const { 
             id,
@@ -577,10 +530,6 @@ export class UserController {
 
         
     }
-
-    
-   
-
     async sendMailRecover(request: Request, response: Response){
         const { email } = request.body;
       
@@ -639,8 +588,6 @@ export class UserController {
        
       
     }
-
-
     async updatePassword(request: Request, response: Response){
         const { code, pass, confirmPass } = request.body;
         if (pass != confirmPass){
@@ -702,5 +649,34 @@ export class UserController {
         if(result)   
         deleteFile(`./public/img/people/${users[0].avatar}`)          
         return response.json(result);           
+    }
+    async validUser(request: Request, response: Response){
+        const {status, id, authorId} = request.body
+
+        await prismaClient.users.update({
+            where: id,
+            data: {
+                status,
+                authorId
+            }
+        })
+
+        return response.json()
+    }
+    async findByStatusInvestor(request: Request, response: Response){
+        const {status,pag} = request.params
+
+        const result = await prismaClient.users.findMany({
+            where: {
+                status
+            },
+            skip: Number(pag)*10,
+            take: 10,
+            orderBy: {
+                date_create: 'desc'
+            }     
+        })
+
+        return response.json(result)
     }
 }

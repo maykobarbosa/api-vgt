@@ -30,4 +30,8 @@ companyRoutes.delete("/company/delete/:id/:userId", Company.delete)
 
 companyRoutes.get("/company/:pag", Company.list)
 
+///admin
+companyRoutes.get("/company-by-status/:status/:pag", Company.listByStatus)
+companyRoutes.put("/company/valid", Company.validCompany)
+
 export { companyRoutes }
