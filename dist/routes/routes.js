@@ -1,0 +1,27 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.router = void 0;
+var express_1 = require("express");
+var userRoutes_1 = require("./userRoutes");
+var startupRoutes_1 = require("./startupRoutes");
+var peopleRoutes_1 = require("./peopleRoutes");
+var companyRoutes_1 = require("./companyRoutes");
+var releasesRoutes_1 = require("./releasesRoutes");
+var partnerRoutes_1 = require("./partnerRoutes");
+var collaboratorRoutes_1 = require("./collaboratorRoutes");
+var groupRoutes_1 = require("./groupRoutes");
+var valuationRoutes_1 = require("./valuationRoutes");
+var messageRoutes_1 = require("./messageRoutes");
+var router = (0, express_1.Router)();
+exports.router = router;
+router.use(userRoutes_1.userRoutes);
+router.use(startupRoutes_1.startupRoutes);
+router.use(peopleRoutes_1.peopleRoutes);
+router.use(companyRoutes_1.companyRoutes);
+router.use(releasesRoutes_1.releasesRoutes);
+router.use(partnerRoutes_1.partnerRoutes);
+router.use(collaboratorRoutes_1.collaboratorRoutes);
+router.use(groupRoutes_1.groupRoutes);
+router.use(valuationRoutes_1.valuationRoutes);
+router.use(messageRoutes_1.messageRoutes);
+//# sourceMappingURL=routes.js.map

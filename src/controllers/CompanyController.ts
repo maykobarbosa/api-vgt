@@ -46,6 +46,7 @@ export class CompanyController {
                 phone,
                 website,
                 equity,
+                status: "pending" ,
                 ownerId: authorId,
                 authorId
             }
@@ -177,16 +178,12 @@ export class CompanyController {
     } 
 
     async searchAll(request: Request, response: Response){  
-        let {pag, name, userId} = request.params  
-        if(name=="null"){
+        let {pag, status, userId} = request.params  
+        if(status=="null"){
             var result = await prismaClient.companies.findMany({    
                 where:{
                     AND: [
-                        {
-                            status: {
-                                equals: "approved"
-                            }
-                        },
+                       
                         {
                             OR: [
                                 {
@@ -237,8 +234,9 @@ export class CompanyController {
                         }
                     }
                 },
-                // skip: Number(pag),
-                // take: 10,
+                
+                skip: Number(pag)*9,
+                take: 9,
                 orderBy: {
                     date_create: 'desc'
                 }            
@@ -248,15 +246,11 @@ export class CompanyController {
                 where:{
                     AND: [
                         { 
-                            name: {
-                                contains: name
-                            }
-                        },
-                        {
                             status: {
-                                equals: "approved"
+                                equals: status
                             }
                         },
+                        
                         {
                             OR: [
                                 {
@@ -307,8 +301,9 @@ export class CompanyController {
                         }
                     }
                 },     
-                // skip: Number(pag),
-                // take: 10,
+                
+                skip: Number(pag)*9,
+                take: 9,
                 orderBy: {
                     date_create: 'desc'
                 }            

@@ -127,6 +127,7 @@ export class UserController {
             full_name,
             fone,
             password,
+            status,
 
             how_long_do_you_invest,
             main_investments,
@@ -162,6 +163,7 @@ export class UserController {
                 email,
                 full_name,
                 fone,
+                status,
 
                 how_long_do_you_invest,
                 main_investments,
@@ -325,7 +327,6 @@ export class UserController {
         if (!user) {
           throw new Error("Usuário não encontrado!")
         }
-      
         // check if password match
         const checkPassword = await bcrypt.compare(password, user.password)
       
@@ -333,6 +334,9 @@ export class UserController {
             throw new Error("E-mail e/ou senha incorretos!")
         }      
         
+        if(user.status==="pendente"){
+            throw new Error("Seu cadastro ainda não foi aprovado pelo setor de análise!")
+        }
         const token = Jwt.sign({
             id: user.id,
         },
@@ -343,13 +347,11 @@ export class UserController {
             }
         )
         var isCompanyAproved = false
-        const i = user.companies.filter(i=> i.status === "approved")
+        const i = user.companies.filter(i=> i.status === "aprovado")
         if(i.length>0){
             isCompanyAproved = true
         }
-        
-
-        
+                
         return response.status(200).json({ msg: "Authentication success!", token, user: {            
             id: user.id,
             email: user.email,
@@ -431,7 +433,7 @@ export class UserController {
                     }
                 )
                 var isCompanyAproved = false
-                const i = user.companies.filter(i=> i.status === "approved")
+                const i = user.companies.filter(i=> i.status === "aprovado")
                 if(i.length>0){
                     isCompanyAproved = true
                 }
