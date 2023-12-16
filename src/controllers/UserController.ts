@@ -654,31 +654,49 @@ export class UserController {
     }
     async validUser(request: Request, response: Response){
         const {status, id, authorId} = request.body
+        if(id){
+            await prismaClient.users.update({
+                where: {
+                    id
+                       
+                },
+                data: {
+                    status,
+                    authorId
+                }
+            })
 
-        await prismaClient.users.update({
-            where: id,
-            data: {
-                status,
-                authorId
-            }
-        })
-
-        return response.json()
-    }
+            return response.json()
+        }
+}
+       
     async findByStatusInvestor(request: Request, response: Response){
         const {status,pag} = request.params
 
-        const result = await prismaClient.users.findMany({
-            where: {
-                status
-            },
-            skip: Number(pag)*10,
-            take: 10,
-            orderBy: {
-                date_create: 'desc'
-            }     
-        })
+        if(status === "Todos"){
+            const result = await prismaClient.users.findMany({
+                skip: Number(pag)*10,
+                take: 10,
+                orderBy: {
+                    date_create: 'desc'
+                }     
+            })
+            return response.json(result)
+        }else{
+            const result = await prismaClient.users.findMany({
+                where: {
+                    status
+                },
+                skip: Number(pag)*10,
+                take: 10,
+                orderBy: {
+                    date_create: 'desc'
+                }     
+            })
+            return response.json(result)
+        }
+        
 
-        return response.json(result)
+        return response.json()
     }
 }
