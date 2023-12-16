@@ -343,32 +343,49 @@ export class CompanyController {
     }
     async listByStatus(request: Request, response: Response){  
         let {status,pag} = request.params  
-        
-        var result = await prismaClient.companies.findMany({     
-            where: {
-                status: {
-                    equals: status
-                }
-            },
-            skip: Number(pag)*9,
-            take: 9,
-            orderBy: {
-                date_create: 'desc'
-            }            
-        })        
-        var total = await prismaClient.companies.count({
-            where: {
-                status: {
-                    equals: status
-                }
-            },
-        })
+        if(status === "todos"){
+            var result = await prismaClient.companies.findMany({     
+                skip: Number(pag)*9,
+                take: 9,
+                orderBy: {
+                    date_create: 'desc'
+                }            
+            })        
+            var total = await prismaClient.companies.count({})
+    
+            return response.json({
+                companies: result,
+                total
+            });
+        }else{
+            var result = await prismaClient.companies.findMany({     
+                where: {
+                    status: {
+                        equals: status
+                    }
+                },
+                skip: Number(pag)*9,
+                take: 9,
+                orderBy: {
+                    date_create: 'desc'
+                }            
+            })        
+            var total = await prismaClient.companies.count({
+                where: {
+                    status: {
+                        equals: status
+                    }
+                },
+            })
+    
+            return response.json({
+                companies: result,
+                total
+            }); 
+        }
 
-        return response.json({
-            companies: result,
-            total
-        }); 
-    }
+        }
+       
 
     async validCompany(request: Request, response: Response){
         const {status, id, authorId} = request.body
