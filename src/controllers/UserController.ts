@@ -654,17 +654,22 @@ export class UserController {
     }
     async validUser(request: Request, response: Response){
         const {status, id, authorId} = request.body
+        if(id){
+            await prismaClient.users.update({
+                where: {
+                    id
+                       
+                },
+                data: {
+                    status,
+                    authorId
+                }
+            })
 
-        await prismaClient.users.update({
-            where: id,
-            data: {
-                status,
-                authorId
-            }
-        })
-
-        return response.json()
-    }
+            return response.json()
+        }
+}
+       
     async findByStatusInvestor(request: Request, response: Response){
         const {status,pag} = request.params
 
