@@ -23,10 +23,6 @@ model Users {
   profile                String
   birth                  String?
 
-
-
-
-
   he_knew String?
   business String?
   help String?
@@ -49,6 +45,7 @@ model Users {
   releases  Releases[]
   group     Group[]
   Valuation Valuation[]
+  documents    Document[]
 
   authorId String?
 
@@ -58,7 +55,9 @@ model Users {
 model Companies {
   id     String @id @default(uuid())
   avatar String
+
   name   String
+  cnpj   String?
 
   description String?
   sector      String?
@@ -72,6 +71,14 @@ model Companies {
 
   equity Float?
 
+  has_assets  Boolean?
+  growth_projection String?  
+  main_competitors_of_the_company String?
+  has_a_governance_structure Boolean?
+  has_an_operating_agreement Boolean?
+  have_reserva Boolean?
+  future_projections String?
+
   status String?
 
   realeases    Releases[]
@@ -79,6 +86,7 @@ model Companies {
   collaborator Collaborator[]
   group        Group[]
   valuation    Valuation[]
+  documents    Document[]
 
   owner   Users  @relation(fields: [ownerId], references: [id])
   ownerId String
@@ -228,3 +236,21 @@ model Valuation {
   date_create DateTime @default(now())
 }
 
+
+
+
+model Document {
+  id String @id @default(uuid())
+
+  title String
+  uri  String
+
+  company   Companies @relation(fields: [companyId], references: [id])
+  companyId String
+
+  author   Users  @relation(fields: [authorId], references: [id])
+  authorId String
+
+  date_update DateTime @updatedAt
+  date_create DateTime @default(now())
+}
