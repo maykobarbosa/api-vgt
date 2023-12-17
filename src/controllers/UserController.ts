@@ -654,31 +654,68 @@ export class UserController {
     }
     async validUser(request: Request, response: Response){
         const {status, id, authorId} = request.body
+        if(id){
+            await prismaClient.users.update({
+                where: {
+                    id
+                       
+                },
+                data: {
+                    status,
+                    authorId
+                }
+            })
 
-        await prismaClient.users.update({
-            where: id,
-            data: {
-                status,
-                authorId
-            }
-        })
-
-        return response.json()
-    }
+            return response.json()
+        }
+}
+       
     async findByStatusInvestor(request: Request, response: Response){
         const {status,pag} = request.params
 
-        const result = await prismaClient.users.findMany({
-            where: {
-                status
-            },
-            skip: Number(pag)*10,
-            take: 10,
-            orderBy: {
-                date_create: 'desc'
-            }     
-        })
+        if(status === "todos"){
+            const result = await prismaClient.users.findMany({
+                where: {
+                    profile: "2"
+                },
+                skip: Number(pag)*10,
+                take: 10,
+                orderBy: {
+                    date_create: 'desc'
+                }     
+            })
+            const total = await prismaClient.users.count({
+                where: {
+                    profile: "2"
+                }
+            })
+            return response.json({result,total})
+        }else{
+            const result = await prismaClient.users.findMany({
+                where: {
+                    AND: [
+                        {profile: "2"},
+                        {status}
+                    ]
+                },
+                skip: Number(pag)*10,
+                take: 10,
+                orderBy: {
+                    date_create: 'desc'
+                }     
+            })
+            const total = await prismaClient.users.count({
+                where: {
+                    AND: [
+                        {profile: "2"},
+                        {status}
+                    ]
+                }                   
+            })
+            return response.json({result,total})
+        }
+        
 
-        return response.json(result)
+        return response.json()
     }
 }
