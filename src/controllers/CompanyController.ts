@@ -434,7 +434,7 @@ export class CompanyController {
     }
     async listByStatus(request: Request, response: Response){  
         let {status,pag} = request.params  
-        if(status === "todos"){
+        if(status === "Todos"){
             var result = await prismaClient.companies.findMany({     
                 skip: Number(pag)*9,
                 take: 9,
@@ -480,16 +480,21 @@ export class CompanyController {
 
     async validCompany(request: Request, response: Response){
         const {status, id, authorId} = request.body
+        if(id){
+            const result = await prismaClient.companies.update({
+                where: {
+                    id
+                },                    
+                data: {
+                    status,
+                    authorId
+                }
+            })
+            return response.json(result)
+        }
+        
 
-        const result = await prismaClient.companies.update({
-            where: id,
-            data: {
-                status,
-                authorId
-            }
-        })
-
-        return response.json(result)
+        
     }
 
     async delete(request: Request, response: Response){
