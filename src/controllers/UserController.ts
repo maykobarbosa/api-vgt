@@ -675,6 +675,9 @@ export class UserController {
 
         if(status === "todos"){
             const result = await prismaClient.users.findMany({
+                where: {
+                    profile: "2"
+                },
                 skip: Number(pag)*10,
                 take: 10,
                 orderBy: {
@@ -685,7 +688,10 @@ export class UserController {
         }else{
             const result = await prismaClient.users.findMany({
                 where: {
-                    status
+                    AND: [
+                        {profile: "2"},
+                        {status}
+                    ]
                 },
                 skip: Number(pag)*10,
                 take: 10,

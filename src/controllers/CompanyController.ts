@@ -480,21 +480,16 @@ export class CompanyController {
 
     async validCompany(request: Request, response: Response){
         const {status, id, authorId} = request.body
-        if(id){
-            const result = await prismaClient.companies.update({
-                where: {
-                    id
-                },                    
-                data: {
-                    status,
-                    authorId
-                }
-            })
-            return response.json(result)
-        }
-        
 
-        
+        const result = await prismaClient.companies.update({
+            where: id,
+            data: {
+                status,
+                authorId
+            }
+        })
+
+        return response.json(result)
     }
 
     async delete(request: Request, response: Response){
