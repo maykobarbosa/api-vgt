@@ -198,7 +198,7 @@ export class CompanyController {
 
     async searchAll(request: Request, response: Response){  
         let {pag, status, userId} = request.params  
-        if(status=="null"){
+        if(status=="all"){
             var result = await prismaClient.companies.findMany({    
                 where:{
                     AND: [
