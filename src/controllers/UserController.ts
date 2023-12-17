@@ -673,7 +673,7 @@ export class UserController {
     async findByStatusInvestor(request: Request, response: Response){
         const {status,pag} = request.params
 
-        if(status === "Todos"){
+        if(status === "todos"){
             const result = await prismaClient.users.findMany({
                 skip: Number(pag)*10,
                 take: 10,
