@@ -434,7 +434,7 @@ export class CompanyController {
     }
     async listByStatus(request: Request, response: Response){  
         let {status,pag} = request.params  
-        if(status === "Todos"){
+        if(status === "all"){
             var result = await prismaClient.companies.findMany({     
                 skip: Number(pag)*9,
                 take: 9,
