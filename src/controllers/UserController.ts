@@ -684,7 +684,12 @@ export class UserController {
                     date_create: 'desc'
                 }     
             })
-            return response.json(result)
+            const total = await prismaClient.users.count({
+                where: {
+                    profile: "2"
+                }
+            })
+            return response.json({result,total})
         }else{
             const result = await prismaClient.users.findMany({
                 where: {
@@ -699,7 +704,15 @@ export class UserController {
                     date_create: 'desc'
                 }     
             })
-            return response.json(result)
+            const total = await prismaClient.users.count({
+                where: {
+                    AND: [
+                        {profile: "2"},
+                        {status}
+                    ]
+                }                   
+            })
+            return response.json({result,total})
         }
         
 
