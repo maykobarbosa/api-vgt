@@ -670,12 +670,26 @@ export class UserController {
         }
 }       
     async findByStatusInvestor(request: Request, response: Response){
-        const {status,pag} = request.params
-
+        
+        let {status,pag, search} = request.params  
+        let params = search
+        if(params==="null"){
+            params=""
+        }
         if(status === "todos"){
             const result = await prismaClient.users.findMany({
                 where: {
-                    profile: "2"
+                    AND: [
+                        {
+                            profile: "2"
+                        },
+                        {
+                            full_name: {
+                                contains: params
+                            }
+                        }
+                    ]
+                    
                 },
                 skip: Number(pag)*10,
                 take: 10,
@@ -685,8 +699,18 @@ export class UserController {
             })
             const total = await prismaClient.users.count({
                 where: {
-                    profile: "2"
-                }
+                    AND: [
+                        {
+                            profile: "2"
+                        },
+                        {
+                            full_name: {
+                                contains: params
+                            }
+                        }
+                    ]
+                    
+                },
             })
             return response.json({result,total})
         }else{
@@ -694,6 +718,11 @@ export class UserController {
                 where: {
                     AND: [
                         {profile: "2"},
+                        {
+                            full_name: {
+                                contains: params
+                            }
+                        },
                         {status}
                     ]
                 },
@@ -707,14 +736,16 @@ export class UserController {
                 where: {
                     AND: [
                         {profile: "2"},
+                        {
+                            full_name: {
+                                contains: params
+                            }
+                        },
                         {status}
                     ]
-                }                   
+                },           
             })
             return response.json({result,total})
         }
-        
-
-        return response.json()
     }
 }
