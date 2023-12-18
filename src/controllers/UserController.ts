@@ -668,8 +668,7 @@ export class UserController {
 
             return response.json()
         }
-}
-       
+}       
     async findByStatusInvestor(request: Request, response: Response){
         const {status,pag} = request.params
 

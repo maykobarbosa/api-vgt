@@ -16,7 +16,7 @@ export class CompanyController {
             phone,
             website,
             equity,
-
+            cnpj,
             has_assets,
             growth_projection,
             main_competitors_of_the_company,
@@ -54,7 +54,8 @@ export class CompanyController {
                 email,
                 phone,
                 website,
-
+                cnpj,
+                
                 has_assets:has_assets==="1"?true:false,
                 growth_projection,
                 main_competitors_of_the_company,
@@ -477,7 +478,6 @@ export class CompanyController {
 
         }
        
-
     async validCompany(request: Request, response: Response){
         const {status, id, authorId} = request.body
 
