@@ -55,7 +55,7 @@ export class CompanyController {
                 phone,
                 website,
                 cnpj,
-                
+
                 has_assets:has_assets==="1"?true:false,
                 growth_projection,
                 main_competitors_of_the_company,
@@ -434,16 +434,30 @@ export class CompanyController {
         }); 
     }
     async listByStatus(request: Request, response: Response){  
-        let {status,pag} = request.params  
+        let {status,pag, search} = request.params  
+        let params = search
+        if(params==="null"){
+            params=""
+        }
+
         if(status === "all"){
             var result = await prismaClient.companies.findMany({     
+                where: {
+                    name: {
+                        contains: params
+                    }
+                },
                 skip: Number(pag)*9,
                 take: 9,
                 orderBy: {
                     date_create: 'desc'
                 }            
             })        
-            var total = await prismaClient.companies.count({})
+            var total = await prismaClient.companies.count({where: {
+                name: {
+                    contains: params
+                }
+            },})
     
             return response.json({
                 companies: result,
@@ -452,9 +466,18 @@ export class CompanyController {
         }else{
             var result = await prismaClient.companies.findMany({     
                 where: {
-                    status: {
-                        equals: status
-                    }
+                    AND: [
+                        {
+                            name: {
+                                contains: params
+                            }
+                        },
+                        {
+                            status: {
+                                equals: status
+                            }
+                        }
+                    ]                   
                 },
                 skip: Number(pag)*9,
                 take: 9,
@@ -464,9 +487,18 @@ export class CompanyController {
             })        
             var total = await prismaClient.companies.count({
                 where: {
-                    status: {
-                        equals: status
-                    }
+                    AND: [
+                        {
+                            name: {
+                                contains: params
+                            }
+                        },
+                        {
+                            status: {
+                                equals: status
+                            }
+                        }
+                    ]                   
                 },
             })
     
