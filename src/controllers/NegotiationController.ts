@@ -39,7 +39,7 @@ const numericValue = parseFloat(stringWithoutCommas);
         })
 
         if(result&&company){
-            notifications.create(company.authorId, `${company.name.toLocaleUpperCase()} recebeu uma proposta de investimento.`)
+            notifications.create(company.authorId, `${company.name.toLocaleUpperCase()} recebeu uma proposta de investimento`)
         }
 
         return response.json(result)

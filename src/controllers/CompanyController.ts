@@ -199,7 +199,98 @@ export class CompanyController {
 
     async searchAll(request: Request, response: Response){  
         let {pag, status, userId} = request.params  
-        if(status=="all"){
+        if(status=="dashboard"){
+            var result = await prismaClient.companies.findMany({    
+                where:{
+                    AND: [
+                       
+                        {
+                            OR: [
+                                {
+                                    ownerId: {
+                                        equals: userId
+                                    }
+                                },
+                                {
+                                    group: { ///verifica se faz parte do grupo
+                                        some: {
+                                            AND: [
+                                                {
+                                                    memberId: {
+                                                        equals: userId
+                                                    },
+                                                    status: "APROVADO"
+                                                }
+                                            ]
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    ]
+                        
+                },
+
+                include: {
+                    realeases: {
+                        orderBy: [
+                            {
+                                year: "desc",
+                            },
+                            {
+                                month: "desc",
+                            }
+                        ],
+                        take: 1 // Limita a consulta para trazer apenas o registro mais recente da TabelaB.
+                    },
+                    valuation: {
+                        orderBy: { date_create: "desc"},
+                        take: 1
+                    },
+                    _count: {
+                        select: {
+                            partner: true,
+                            collaborator: true
+                        }
+                    }
+                },
+                
+                orderBy: {
+                    date_create: 'desc'
+                }            
+            })
+            var total = await prismaClient.companies.count({    
+                where:{
+                    AND: [
+                       
+                        {
+                            OR: [
+                                {
+                                    ownerId: {
+                                        equals: userId
+                                    }
+                                },
+                                {
+                                    group: { ///verifica se faz parte do grupo
+                                        some: {
+                                            AND: [
+                                                {
+                                                    memberId: {
+                                                        equals: userId
+                                                    },
+                                                    status: "APROVADO"
+                                                }
+                                            ]
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    ]
+                        
+                }
+            })
+        }else if(status=="all"){
             var result = await prismaClient.companies.findMany({    
                 where:{
                     AND: [

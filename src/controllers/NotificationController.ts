@@ -1,3 +1,4 @@
+import { Request, Response } from "express";
 import { prismaClient } from "../database/prismaClient";
 
 export class NotificationController{
@@ -14,5 +15,40 @@ export class NotificationController{
                 viewed: false
             }
          })
+    }
+    async find(request: Request, response: Response){
+        const {userId} = request.params
+
+        const result = await prismaClient.notifications.findMany({
+            where: {
+                AND: [
+                    {
+                        userId
+                    },
+                    {
+                        viewed: {
+                            equals: false
+                        }
+                    }
+                ]
+            }
+        })
+
+        return response.json(result)
+    }
+
+    async view(request: Request, response: Response){
+        const {id} = request.params
+
+        const result = await prismaClient.notifications.update({
+            where: {
+                id
+            },
+            data: {
+                viewed: true
+            }
+        })
+
+        return response.json(result)
     }
 }
