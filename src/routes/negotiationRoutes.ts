@@ -6,6 +6,7 @@ const negotiationRoutes = Router()
 
 const negotiation = new NegotiationController()
 negotiationRoutes.post("/business-proposal", negotiation.initial)
+negotiationRoutes.get("/business-proposal/by-client/:id", negotiation.getByClient)
 
 
 export { negotiationRoutes }

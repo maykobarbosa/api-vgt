@@ -150,7 +150,8 @@ const numericValue = parseFloat(stringWithoutCommas);
                 }
             },
             include:{
-                company: true
+                company: true,
+                user: true
             }
         })
 
