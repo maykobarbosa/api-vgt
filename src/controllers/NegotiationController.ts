@@ -39,7 +39,7 @@ const numericValue = parseFloat(stringWithoutCommas);
         })
 
         if(result&&company){
-            notifications.create(company.authorId, `${company.name.toLocaleUpperCase()} recebeu uma proposta de investimento`)
+            notifications.create(company.ownerId, `${company.name.toLocaleUpperCase()} recebeu uma proposta de investimento`)
         }
 
         return response.json(result)
@@ -139,23 +139,54 @@ const numericValue = parseFloat(stringWithoutCommas);
 
     async getByClient(request: Request, response: Response){
         const {
-            id
+            id, status, pag
         } = request.params
 
 
+        const filtro: any = {};
+        if(status!=="ALL"){
+            filtro.status = { equals: status } 
+        }
+
         const result = await prismaClient.businessProposal.findMany({
             where: {
-                company: {
-                    authorId: id
-                }
+                AND: [
+                    filtro,
+                    {   
+                        company: {
+                            ownerId: id
+                        }
+                    }
+                ]                
             },
             include:{
                 company: true,
-                user: true
-            }
+                user: {
+                    select: {
+                        avatar: true,
+                        full_name: true
+                    }
+                }
+            },
+            skip: Number(pag) * 15,
+            take: 15,
+            orderBy: { date_create: "desc" },
+        })
+        const total = await prismaClient.businessProposal.count({
+            where: {
+                AND: [
+                    filtro,
+                    {   
+                        company: {
+                            ownerId: id
+                        }
+                    }
+                ]        
+            },
+           
         })
 
-        return response.json(result)
+        return response.json({result, total})
     }
 
     async getByClientOpened(request: Request, response: Response){
@@ -179,7 +210,7 @@ const numericValue = parseFloat(stringWithoutCommas);
                     },
                     {
                         company: {
-                            authorId: id
+                            ownerId: id
                         }
                     }
                 ]                
