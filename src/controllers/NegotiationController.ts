@@ -14,11 +14,11 @@ export class NegotiationController{
             message,
             companyId
         } = request.body
-// Remover as vírgulas
-const stringWithoutCommas = proposed_investment.replace(/[$,]/g, "");
+        // Remover as vírgulas
+        const stringWithoutCommas = proposed_investment.replace(/[$,]/g, "");
 
-// Converter a string para um número
-const numericValue = parseFloat(stringWithoutCommas);
+        // Converter a string para um número
+        const numericValue = parseFloat(stringWithoutCommas);
         const result = await prismaClient.businessProposal.create({
             data: {
                 authorId,
@@ -45,6 +45,44 @@ const numericValue = parseFloat(stringWithoutCommas);
         return response.json(result)
     }
 
+    async getById (request: Request, response: Response){
+        const { id } = request.params
+
+        const result = await prismaClient.businessProposal.findUnique({
+            where: {id},
+            include: {
+                negotiantion: {
+                    include: {
+                        user: {
+                            select: {
+                                avatar: true,
+                                full_name: true
+                            }
+                        }
+                    },
+                    orderBy: {
+                        date_create: "asc"
+                    }
+                },
+                user: {
+                    select: {
+                        avatar: true,
+                        full_name: true
+                    }
+                },
+                company: {
+                    select: {
+                        avatar: true,
+                        name: true,
+                        ownerId: true
+                    }
+                }
+            }
+        })
+
+        response.json(result)
+    }
+
     async report (request: Request, response: Response){
         const {
             authorId,
@@ -56,10 +94,15 @@ const numericValue = parseFloat(stringWithoutCommas);
             companyId,
 
             businessId,
-            report
+            report,
+
+            userNotification
         } = request.body
+    // Remover as vírgulas
+    const stringWithoutCommas = proposed_investment.replace(/[$,]/g, "");
 
-
+    // Converter a string para um número
+    const numericValue = parseFloat(stringWithoutCommas);
         const valid = await prismaClient.businessProposal.findUnique({
             where:{
                 id: businessId
@@ -68,15 +111,15 @@ const numericValue = parseFloat(stringWithoutCommas);
                 company: true
             }
         })
-        if(valid?.status==="APROVADO"){
+        if(valid&&valid.status==="APROVADO"){
             throw Error("Negociação encerrada! Proposta ACEITA")
         }
 
         const result = await prismaClient.negotiation.create({
             data:{
                 authorId,
-                proposed_investment,
-                financial_participation,
+                proposed_investment: numericValue,
+                financial_participation: parseFloat(financial_participation.replace(/[%]/g, "")),
                 investment_purpose,
                 investment_return_period,
                 message,
@@ -98,12 +141,11 @@ const numericValue = parseFloat(stringWithoutCommas);
             })
         }
         if(result&&valid){
-            notifications.create(valid.id, `A proposta feita para ${valid.company.name.toLocaleUpperCase()} foi respondida.`)
+            notifications.create(userNotification, `A proposta feita para ${valid.company.name.toLocaleUpperCase()} foi respondida.`)
         }
 
         return response.json(result)
     }
-
 
     async getByCompany(request: Request, response: Response){
         const {
