@@ -121,20 +121,55 @@ const numericValue = parseFloat(stringWithoutCommas);
 
     async getByInvestor(request: Request, response: Response){
         const {
-            id
+            id, status, pag
         } = request.params
 
 
+        const filtro: any = {};
+        if(status!=="ALL"){
+            filtro.status = { equals: status } 
+        }
         const result = await prismaClient.businessProposal.findMany({
             where: {
-                authorId: id
+                AND: [
+                    filtro,
+                    {   
+                        authorId: id
+                        
+                    }
+                ]                
             },
             include:{
-                company: true
-            }
+                company: {
+                    select: {
+                        avatar: true,
+                        name: true
+                    }
+                },
+                user: {
+                    select: {
+                        avatar: true,
+                        full_name: true
+                    }
+                }
+            },
+            skip: Number(pag) * 15,
+            take: 15,
+            orderBy: { date_create: "desc" },
+        })
+        const total = await prismaClient.businessProposal.count({
+            where: {
+                AND: [
+                    filtro,
+                    {                           
+                        authorId: id
+                    }
+                ]        
+            },
+           
         })
 
-        return response.json(result)
+        return response.json({result, total})
     }
 
     async getByClient(request: Request, response: Response){
@@ -160,7 +195,7 @@ const numericValue = parseFloat(stringWithoutCommas);
                 ]                
             },
             include:{
-                company: true,
+                // company: true,
                 user: {
                     select: {
                         avatar: true,
