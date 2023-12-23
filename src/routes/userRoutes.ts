@@ -57,7 +57,7 @@ userRoutes.post('/create-password', User.updatePassword)
 userRoutes.put("/user/update/phone", checkToken, User.updatePhone)
 
 userRoutes.put("/valid-user", User.validUser)
-userRoutes.get("/users/by-status-investor/:status/:pag", User.findByStatusInvestor)
+userRoutes.get("/users/by-status-investor/:status/:pag/:search", User.findByStatusInvestor)
 
 
 

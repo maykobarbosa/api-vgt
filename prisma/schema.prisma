@@ -46,6 +46,9 @@ model Users {
   group     Group[]
   Valuation Valuation[]
   documents    Document[]
+  business_proposal BusinessProposal[]
+  negotiantion Negotiation[]
+  notifications Notifications[]
 
   authorId String?
 
@@ -87,6 +90,8 @@ model Companies {
   group        Group[]
   valuation    Valuation[]
   documents    Document[]
+  business_proposal BusinessProposal[]
+  negotiantion Negotiation[]
 
   owner   Users  @relation(fields: [ownerId], references: [id])
   ownerId String
@@ -251,6 +256,77 @@ model Document {
   author   Users  @relation(fields: [authorId], references: [id])
   authorId String
 
+  date_update DateTime @updatedAt
+  date_create DateTime @default(now())
+}
+
+
+enum StatusBusiness {
+  PENDENTE
+  APROVADO
+  RECUSADO
+  CONTRAPROPOSTA
+}
+
+model BusinessProposal{
+  id String @id @default(uuid())
+
+  status StatusBusiness 
+
+  user Users @relation(fields: [authorId], references: [id])
+  authorId String
+
+  proposed_investment  Float
+  financial_participation Float
+  investment_purpose String
+  investment_return_period String
+  message  String @db.Text
+
+  company Companies @relation(fields: [companyId], references: [id])
+  companyId String
+
+  negotiantion Negotiation[]
+
+  date_update DateTime @updatedAt
+  date_create DateTime @default(now())
+}
+
+model Negotiation{
+  id String @id @default(uuid())
+
+  report StatusBusiness 
+
+  bunsiness_proposal BusinessProposal @relation(fields: [businessId], references: [id])
+  businessId  String
+
+  user Users @relation(fields: [authorId], references: [id])
+  authorId String
+
+  proposed_investment  Float?
+  financial_participation Float?
+  investment_purpose String?  @db.Text
+  investment_return_period String?
+  message  String? @db.Text
+
+  company Companies @relation(fields: [companyId], references: [id])
+  companyId String
+
+  date_update DateTime @updatedAt
+  date_create DateTime @default(now())
+}
+
+model Notifications{
+  id String @id @default(uuid())
+
+  user Users @relation(fields: [userId], references: [id])
+  userId String
+
+  viewed Boolean
+
+  message String @db.Text 
+
+  link String?
+  
   date_update DateTime @updatedAt
   date_create DateTime @default(now())
 }
