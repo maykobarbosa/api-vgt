@@ -592,32 +592,33 @@ export class UserController {
     }
     async updatePassword(request: Request, response: Response){
         const { code, pass, confirmPass } = request.body;
-        if (pass != confirmPass){
-            throw Error("As senhas não coincidem")
-        }
-        const password = await bcrypt.hashSync(pass, 10)
-
-        const user = await prismaClient.users.findUnique({   
-            where: {
-                token_recover_password: code
-            }
-        })
-      
-        if (!user) {
-          throw new Error("Código inválido!")
-        }       
-
-        const result = await prismaClient.users.update({
-            where: {
-                email: user.email                                
-            },
-            data: {
-                token_recover_password: null,
-                password: password
-            }
-        })    
-    
+        
         try {
+            if (pass != confirmPass){
+                throw Error("As senhas não coincidem")
+            }
+            const password = await bcrypt.hashSync(pass, 10)
+
+            const user = await prismaClient.users.findUnique({   
+                where: {
+                    token_recover_password: code
+                }
+            })
+        
+            if (!user) {
+            throw new Error("Código inválido!")
+            }       
+
+            const result = await prismaClient.users.update({
+                where: {
+                    email: user.email                                
+                },
+                data: {
+                    token_recover_password: null,
+                    password: password
+                }
+            })    
+    
             return response.json(result);
         } catch (error) {
             return response.json(error)
