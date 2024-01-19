@@ -602,17 +602,22 @@ export class CompanyController {
         }
        
     async validCompany(request: Request, response: Response){
-        const {status, id, authorId} = request.body
-
-        const result = await prismaClient.companies.update({
-            where: id,
-            data: {
+        try {
+            const { status, id, authorId } = request.body;
+        
+            const result = await prismaClient.companies.update({
+              where: { id }, // Use object with the unique identifier
+              data: {
                 status,
-                authorId
-            }
-        })
-
-        return response.json(result)
+                authorId,
+              },
+            });
+        
+            return response.json(result);
+          } catch (error) {
+            console.error('Error updating company:', error);
+            return response.status(500).json({ error: 'Internal Server Error' });
+          }
     }
 
     async delete(request: Request, response: Response){
