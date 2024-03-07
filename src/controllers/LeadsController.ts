@@ -1,6 +1,5 @@
 import { Request, Response } from "express";
 import { prismaClient } from "../database/prismaClient";
-import { deleteFile } from "../config/file";
 
 
 export class LeadsController{
