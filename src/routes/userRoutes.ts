@@ -16,6 +16,8 @@ userRoutes.post("/user",
     uploadAvatar.single("file"),
     (request,response) => User.create(request,response)
 )
+
+userRoutes.post("/external-user", checkToken, User.createExternalUser)
 //procurando investimento
 userRoutes.post("/user2", User.create2)
 //investidor
