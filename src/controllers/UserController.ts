@@ -15,6 +15,38 @@ interface Payload extends JwtPayload {
 }
 
 export class UserController {
+    async createExternalUser(request: Request, response: Response){
+        const { 
+            username,
+            password
+         } = request.body
+
+        //validar email
+        if(username) {
+            const result = await prismaClient.externalUsers.findFirst({                
+                where: { 
+                    username: {
+                        equals: username
+                    }
+                }
+            })
+            
+            if(result){
+                throw Error("Já possui uma conta cadastrada com este 'username'")
+            }
+        }       
+       
+        const checkPassword = bcrypt.hashSync(password, 10)
+
+        const user = await prismaClient.externalUsers.create({
+            data: {
+                username,
+                password: checkPassword,
+            }
+        })
+                
+        return response.json(user);
+    }
     async create(request: Request, response: Response){
         const { 
             email,
@@ -669,7 +701,7 @@ export class UserController {
 
             return response.json()
         }
-}       
+    }       
     async findByStatusInvestor(request: Request, response: Response){
         
         let {status,pag, search} = request.params  

@@ -330,3 +330,26 @@ model Notifications{
   date_update DateTime @updatedAt
   date_create DateTime @default(now())
 }
+
+model Leads{
+  id String @id @default(uuid())
+
+  company String
+  email String
+  valuation Float
+  type  String
+  date String
+
+  date_update DateTime @updatedAt
+  date_create DateTime @default(now())
+}
+
+model ExternalUsers{
+  id String @id @default(uuid())
+
+  username String
+  password String
+
+  date_update DateTime @updatedAt
+  date_create DateTime @default(now())
+}

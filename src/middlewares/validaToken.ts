@@ -1,5 +1,8 @@
 import { Request, Response, NextFunction } from "express";
 import Jwt from 'jsonwebtoken'
+import * as base64 from 'base-64';
+import { prismaClient } from "../database/prismaClient";
+import bcrypt from 'bcrypt'
 
 export function checkToken(req: Request , res: Response, next: NextFunction) {
     const authHeader = req.headers['authorization']
@@ -17,3 +20,32 @@ export function checkToken(req: Request , res: Response, next: NextFunction) {
       next();
     });
 }
+
+// Middleware para autenticação básica
+export const basicAuthMiddleware = async (req: Request, res: Response, next: NextFunction) => {
+  const authHeader = req.headers.authorization;
+
+  if (!authHeader) {
+    return res.status(401).json({ error: 'Authorization header missing' });
+  }
+
+  const [username, password] = base64.decode(authHeader.split(' ')[1]).split(':');
+
+  const valid = await prismaClient.externalUsers.findFirst({
+    where: {
+      
+          username
+        
+    }
+  })
+  if(!valid){
+    return res.status(401).json({ error: 'Invalid credentials' });
+  }
+  const checkPassword = await bcrypt.compare(password, valid.password)      
+    // Verifique se o username e a senha são válidos
+  if (checkPassword) {
+    return next(); // Autenticação bem-sucedida
+  } else {
+    return res.status(401).json({ error: 'Invalid credentials' });
+  }
+};
