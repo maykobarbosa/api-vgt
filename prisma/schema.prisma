@@ -355,8 +355,8 @@ model Leads{
   ntm Float?
   profit_margin Float?
   burnrate Float?
-  breakeven Float?
-  runrate Float?
+  breakeven String?
+  runrate String?
 
   projected_revenue_for_the_year Float?
   projected_ebitda Float?

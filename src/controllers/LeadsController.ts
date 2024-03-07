@@ -21,8 +21,8 @@ interface LeadInput {
     ntm?: number;
     profit_margin?: number;
     burnrate?: number;
-    breakeven?: number;
-    runrate?: number;
+    breakeven?: string;
+    runrate?: string;
     projected_revenue_for_the_year?: number;
     projected_ebitda?: number;
     immobilized?: number;
