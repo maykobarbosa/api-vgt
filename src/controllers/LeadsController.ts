@@ -1,27 +1,54 @@
 import { Request, Response } from "express";
 import { prismaClient } from "../database/prismaClient";
 
+interface LeadInput {
+    company: string;
+    email: string;
+    valuation: number;
+    type: string;
+    date: string;
+    name_of_person_responsible?: string;
+    whatsapp_of_person_responsible?: string;
+    foundation_date?: string;
+    site?: string;
+    segmento?: string;
+    business_model?: string;
+    locality?: string;
+    investment_stage?: string;
+    operational_stage?: string;
+    arr?: number;
+    mrr?: number;
+    ntm?: number;
+    profit_margin?: number;
+    burnrate?: number;
+    breakeven?: number;
+    runrate?: number;
+    projected_revenue_for_the_year?: number;
+    projected_ebitda?: number;
+    immobilized?: number;
+    current_annual_investment?: number;
+    annual_investment_next_5_years?: number;
+    cash_and_stock_value?: number;
+    debt?: number;
+}
 
 export class LeadsController{
     async create(request: Request, response: Response){
-        const {
-            company,
-            email,
-            valuation,
-            type,
-            date
-        } = request.body
+        const input: LeadInput = request.body;
 
         try {
             const result = await prismaClient.leads.create({
                 data: {
-                    company,
-                    email,
-                    valuation,
-                    type,
-                    date
-                }
-            })
+                    company: input.company,
+                    email: input.email,
+                    valuation: input.valuation,
+                    type: input.type,
+                    date: input.date,
+                    ...Object.fromEntries(
+                        Object.entries(input).filter(([_, v]) => v !== undefined)
+                    ),
+                  },
+                });
     
             return response.json(result)
         } catch (error) {

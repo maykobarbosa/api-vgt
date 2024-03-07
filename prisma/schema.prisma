@@ -340,6 +340,32 @@ model Leads{
   type  String
   date String
 
+  name_of_person_responsible String?
+  whatsapp_of_person_responsible String?
+  foundation_date  String?
+  site String?
+  segmento String?
+  business_model String?
+  locality String?
+  investment_stage String?
+
+  operational_stage String?
+  arr Float?
+  mrr Float?
+  ntm Float?
+  profit_margin Float?
+  burnrate Float?
+  breakeven Float?
+  runrate Float?
+
+  projected_revenue_for_the_year Float?
+  projected_ebitda Float?
+  immobilized Float?
+  current_annual_investment Float?
+  annual_investment_next_5_years Float?
+  cash_and_stock_value Float?
+  debt Float?
+
   date_update DateTime @updatedAt
   date_create DateTime @default(now())
 }
