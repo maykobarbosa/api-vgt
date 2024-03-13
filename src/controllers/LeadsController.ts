@@ -59,13 +59,18 @@ export class LeadsController{
     }
 
     async get(request:Request, response: Response){
-        const {page} = request.query
+        const {search, page} = request.query
 
         if(!page){
             throw Error("Informe a página")
         }
         
-        const result = await prismaClient.leads.findMany({            
+        const result = await prismaClient.leads.findMany({           
+            where: {
+                company: {
+                    contains: String(search)
+                }
+            },
             skip: Number(page) * 20,
             take: 20,
             orderBy: { date_create: "desc" },
