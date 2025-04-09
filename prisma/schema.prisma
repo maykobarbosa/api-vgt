@@ -16,39 +16,39 @@ model Users {
 
   status String?
 
-  avatar                 String?
-  full_name              String
-  fone                   String
-  password               String
-  profile                String
-  birth                  String?
+  avatar    String?
+  full_name String
+  fone      String
+  password  String
+  profile   String
+  birth     String?
 
-  he_knew String?
+  he_knew  String?
   business String?
-  help String?
+  help     String?
 
   message String? @db.Text
 
-  how_long_do_you_invest String?
-  main_investments String?
-  sources_of_income String?
-  annual_income_ornet_worth String?
-  goal String?
+  how_long_do_you_invest            String?
+  main_investments                  String?
+  sources_of_income                 String?
+  annual_income_ornet_worth         String?
+  goal                              String?
   what_are_your_growth_expectations String? @db.Text
-  link_or_social_networks String?
+  link_or_social_networks           String?
 
   token_recover_password String?  @unique
   date_update            DateTime @updatedAt
   date_create            DateTime @default(now())
 
-  companies Companies[]
-  releases  Releases[]
-  group     Group[]
-  Valuation Valuation[]
-  documents    Document[]
+  companies         Companies[]
+  releases          Releases[]
+  group             Group[]
+  Valuation         Valuation[]
+  documents         Document[]
   business_proposal BusinessProposal[]
-  negotiantion Negotiation[]
-  notifications Notifications[]
+  negotiantion      Negotiation[]
+  notifications     Notifications[]
 
   authorId String?
 
@@ -59,8 +59,8 @@ model Companies {
   id     String @id @default(uuid())
   avatar String
 
-  name   String
-  cnpj   String?
+  name String
+  cnpj String?
 
   description String?
   sector      String?
@@ -74,24 +74,24 @@ model Companies {
 
   equity Float?
 
-  has_assets  Boolean?
-  growth_projection String?  
+  has_assets                      Boolean?
+  growth_projection               String?
   main_competitors_of_the_company String?
-  has_a_governance_structure Boolean?
-  has_an_operating_agreement Boolean?
-  have_reserva Boolean?
-  future_projections String?
+  has_a_governance_structure      Boolean?
+  has_an_operating_agreement      Boolean?
+  have_reserva                    Boolean?
+  future_projections              String?
 
   status String?
 
-  realeases    Releases[]
-  partner      Partner[]
-  collaborator Collaborator[]
-  group        Group[]
-  valuation    Valuation[]
-  documents    Document[]
+  realeases         Releases[]
+  partner           Partner[]
+  collaborator      Collaborator[]
+  group             Group[]
+  valuation         Valuation[]
+  documents         Document[]
   business_proposal BusinessProposal[]
-  negotiantion Negotiation[]
+  negotiantion      Negotiation[]
 
   owner   Users  @relation(fields: [ownerId], references: [id])
   ownerId String
@@ -141,7 +141,7 @@ model Releases {
   receitaLiquida Float
   despesaBruta   Float
 
-  docs  String?
+  docs String?
 
   company   Companies @relation(fields: [companyId], references: [id])
   companyId String
@@ -157,6 +157,8 @@ model Releases {
 
 model Department {
   id String @id @default(uuid())
+
+  @@map("departamentos")
 }
 
 model Partner {
@@ -209,6 +211,8 @@ model People {
 
 model Expenses {
   id String @id @default(uuid())
+
+  @@map("despesas")
 }
 
 model StartUp {
@@ -223,6 +227,8 @@ model StartUp {
 
   date_update DateTime @updatedAt
   date_create DateTime @default(now())
+
+  @@map("startup")
 }
 
 model Valuation {
@@ -239,16 +245,15 @@ model Valuation {
 
   date_update DateTime @updatedAt
   date_create DateTime @default(now())
+
+  @@map("valuation")
 }
-
-
-
 
 model Document {
   id String @id @default(uuid())
 
   title String
-  uri  String
+  uri   String
 
   company   Companies @relation(fields: [companyId], references: [id])
   companyId String
@@ -258,8 +263,9 @@ model Document {
 
   date_update DateTime @updatedAt
   date_create DateTime @default(now())
-}
 
+  @@map("documentos")
+}
 
 enum StatusBusiness {
   PENDENTE
@@ -268,109 +274,117 @@ enum StatusBusiness {
   CONTRAPROPOSTA
 }
 
-model BusinessProposal{
+model BusinessProposal {
   id String @id @default(uuid())
 
-  status StatusBusiness 
+  status StatusBusiness
 
-  user Users @relation(fields: [authorId], references: [id])
+  user     Users  @relation(fields: [authorId], references: [id])
   authorId String
 
-  proposed_investment  Float
-  financial_participation Float
-  investment_purpose String
+  proposed_investment      Float
+  financial_participation  Float
+  investment_purpose       String
   investment_return_period String
-  message  String @db.Text
+  message                  String @db.Text
 
-  company Companies @relation(fields: [companyId], references: [id])
+  company   Companies @relation(fields: [companyId], references: [id])
   companyId String
 
   negotiantion Negotiation[]
 
   date_update DateTime @updatedAt
   date_create DateTime @default(now())
+
+  @@map("propostas_de_negocio")
 }
 
-model Negotiation{
+model Negotiation {
   id String @id @default(uuid())
 
-  report StatusBusiness 
+  report StatusBusiness
 
   bunsiness_proposal BusinessProposal @relation(fields: [businessId], references: [id])
-  businessId  String
+  businessId         String
 
-  user Users @relation(fields: [authorId], references: [id])
+  user     Users  @relation(fields: [authorId], references: [id])
   authorId String
 
-  proposed_investment  Float?
-  financial_participation Float?
-  investment_purpose String?  @db.Text
+  proposed_investment      Float?
+  financial_participation  Float?
+  investment_purpose       String? @db.Text
   investment_return_period String?
-  message  String? @db.Text
+  message                  String? @db.Text
 
-  company Companies @relation(fields: [companyId], references: [id])
+  company   Companies @relation(fields: [companyId], references: [id])
   companyId String
 
   date_update DateTime @updatedAt
   date_create DateTime @default(now())
+
+  @@map("negociacoes")
 }
 
-model Notifications{
+model Notifications {
   id String @id @default(uuid())
 
-  user Users @relation(fields: [userId], references: [id])
+  user   Users  @relation(fields: [userId], references: [id])
   userId String
 
   viewed Boolean
 
-  message String @db.Text 
+  message String @db.Text
 
   link String?
-  
+
   date_update DateTime @updatedAt
   date_create DateTime @default(now())
+
+  @@map("notificacoes")
 }
 
-model Leads{
+model Leads {
   id String @id @default(uuid())
 
-  company String
-  email String
+  company   String
+  email     String
   valuation Float
-  type  String
-  date String
+  type      String
+  date      String
 
-  name_of_person_responsible String?
+  name_of_person_responsible     String?
   whatsapp_of_person_responsible String?
-  foundation_date  String?
-  site String?
-  segmento String?
-  business_model String?
-  locality String?
-  investment_stage String?
+  foundation_date                String?
+  site                           String?
+  segmento                       String?
+  business_model                 String?
+  locality                       String?
+  investment_stage               String?
 
   operational_stage String?
-  arr Float?
-  mrr Float?
-  ntm Float?
-  profit_margin Float?
-  burnrate Float?
-  breakeven String?
-  runrate String?
+  arr               Float?
+  mrr               Float?
+  ntm               Float?
+  profit_margin     Float?
+  burnrate          Float?
+  breakeven         String?
+  runrate           String?
 
   projected_revenue_for_the_year Float?
-  projected_ebitda Float?
-  immobilized Float?
-  current_annual_investment Float?
+  projected_ebitda               Float?
+  immobilized                    Float?
+  current_annual_investment      Float?
   annual_investment_next_5_years Float?
-  cash_and_stock_value Float?
-  debt Float?
+  cash_and_stock_value           Float?
+  debt                           Float?
 
   date_update DateTime @updatedAt
   date_create DateTime @default(now())
+
+  @@map("leads")
 }
 
-model ExternalUsers{
+model ExternalUsers {
   id String @id @default(uuid())
 
   username String
@@ -378,4 +392,6 @@ model ExternalUsers{
 
   date_update DateTime @updatedAt
   date_create DateTime @default(now())
+
+  @@map("usuarios_externos")
 }
