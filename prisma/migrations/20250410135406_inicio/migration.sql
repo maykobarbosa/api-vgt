@@ -2,6 +2,7 @@
 CREATE TABLE `usuarios` (
     `id` VARCHAR(191) NOT NULL,
     `type` ENUM('INVESTIDOR', 'EMPREENDEDOR') NOT NULL,
+    `avatar` VARCHAR(191) NOT NULL,
     `email` VARCHAR(191) NOT NULL,
     `senha` VARCHAR(191) NOT NULL,
     `nome` VARCHAR(191) NOT NULL,

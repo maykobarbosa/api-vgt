@@ -14,6 +14,8 @@ model Users {
   id   String   @id @default(uuid())
   type TypeUser
 
+  avatar String
+
   email String @unique
   senha String
 

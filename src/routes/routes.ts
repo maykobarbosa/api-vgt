@@ -6,11 +6,9 @@ import { companyRoutes } from "./companyRoutes";
 import { releasesRoutes } from "./releasesRoutes";
 import { partnerRoutes } from "./partnerRoutes";
 import { collaboratorRoutes } from "./collaboratorRoutes";
-import { groupRoutes } from "./groupRoutes";
 import { valuationRoutes } from "./valuationRoutes";
 import { messageRoutes } from "./messageRoutes";
 import { docsRoutes } from "./docsRoutes";
-import { negotiationRoutes } from "./negotiationRoutes";
 import { notificationRoutes } from "./notificationRoutes";
 import { leadsRoutes } from "./leadsRoutes";
 
@@ -24,11 +22,9 @@ router.use(companyRoutes)
 router.use(releasesRoutes)
 router.use(partnerRoutes)
 router.use(collaboratorRoutes)
-router.use(groupRoutes)
-router.use(valuationRoutes)     
-router.use(messageRoutes)  
+router.use(valuationRoutes)
+router.use(messageRoutes)
 router.use(docsRoutes)
-router.use(negotiationRoutes)
 router.use(notificationRoutes)
 router.use(leadsRoutes)
 
