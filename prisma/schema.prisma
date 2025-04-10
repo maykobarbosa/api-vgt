@@ -11,31 +11,30 @@ datasource db {
 }
 
 model Users {
-  id    String @id @default(uuid())
+  id   String   @id @default(uuid())
+  type TypeUser
+
   email String @unique
+  senha String
 
-  status String?
+  nome            String
+  telefone        String
+  data_nascimento String
 
-  avatar    String?
-  full_name String
-  fone      String
-  password  String
-  profile   String
-  birth     String?
+  tempo_experiencia  String?
+  tipos_investimento String?
+  fontes_renda       String?
+  renda_anual        String?
 
-  he_knew  String?
-  business String?
-  help     String?
+  localizacao String?
+  instagram   String?
+  facebook    String?
+  linkedin    String?
+  website     String?
 
-  message String? @db.Text
+  biografia String?
 
-  how_long_do_you_invest            String?
-  main_investments                  String?
-  sources_of_income                 String?
-  annual_income_ornet_worth         String?
-  goal                              String?
-  what_are_your_growth_expectations String? @db.Text
-  link_or_social_networks           String?
+  Administrador Boolean @default(false)
 
   token_recover_password String?  @unique
   date_update            DateTime @updatedAt
@@ -50,56 +49,53 @@ model Users {
   negotiantion      Negotiation[]
   notifications     Notifications[]
 
-  authorId String?
-
   @@map("usuarios")
 }
 
+enum TypeUser {
+  INVESTIDOR
+  EMPREENDEDOR
+}
+
 model Companies {
-  id     String @id @default(uuid())
-  avatar String
+  id        String  @id @default(uuid())
+  logotipo  String
+  nome      String
+  email     String
+  setor     String
+  endereco  String
+  cnpj      String
+  contato   String
+  biografia String?
+  instagram String?
+  facebook  String?
+  linkedin  String?
+  youtube   String?
+  x         String?
+  site      String?
 
-  name String
-  cnpj String?
+  patrimonio           Int?
+  reserva_financeira   Int?
+  acordo_operacional   Boolean?
+  estrutura_governanca Boolean?
+  projecao_crescimento String?
+  projecao_futura      String?
+  competidores         String?
 
-  description String?
-  sector      String?
-  address     String?
-  city        String?
-  state       String?
-  zip         String?
-  email       String?
-  phone       String?
-  website     String?
-
-  equity Float?
-
-  has_assets                      Boolean?
-  growth_projection               String?
-  main_competitors_of_the_company String?
-  has_a_governance_structure      Boolean?
-  has_an_operating_agreement      Boolean?
-  have_reserva                    Boolean?
-  future_projections              String?
-
-  status String?
-
-  realeases         Releases[]
-  partner           Partner[]
-  collaborator      Collaborator[]
-  group             Group[]
-  valuation         Valuation[]
-  documents         Document[]
-  business_proposal BusinessProposal[]
-  negotiantion      Negotiation[]
-
-  owner   Users  @relation(fields: [ownerId], references: [id])
-  ownerId String
-
-  authorId String
+  dono   Users  @relation(fields: [donoId], references: [id])
+  donoId String
 
   date_update DateTime @updatedAt
   date_create DateTime @default(now())
+
+  Group            Group[]
+  Releases         Releases[]
+  Partner          Partner[]
+  Collaborator     Collaborator[]
+  Valuation        Valuation[]
+  Document         Document[]
+  BusinessProposal BusinessProposal[]
+  Negotiation      Negotiation[]
 
   @@map("empresas")
 }
