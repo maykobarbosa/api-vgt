@@ -17,8 +17,12 @@ companyRoutes.post("/create-company",
         { name: "despesas", maxCount: 1 },
         { name: "dividas", maxCount: 1 },
         { name: "receitas", maxCount: 1 },
-        { name: "contratos", maxCount: 1 }
+        { name: "contratos_firmados", maxCount: 1 },
+        { name: "contratos_pendentes", maxCount: 1 }
     ]),
     companyController.createCompany)
+
+companyRoutes.get("/list-companies/:donoId",
+    companyController.listCompanies)
 
 export { companyRoutes }

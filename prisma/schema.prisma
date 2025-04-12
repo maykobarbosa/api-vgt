@@ -50,6 +50,8 @@ model Users {
   negotiantion      Negotiation[]
   notifications     Notifications[]
 
+  authorId String?
+
   @@map("usuarios")
 }
 
@@ -90,12 +92,13 @@ model Companies {
   projecao_futura      String
   competidores         String
 
-  imposto   String
-  YTD       String
-  despesas  String
-  dividas   String
-  caixa     String
-  contratos String
+  imposto             String
+  YTD                 String
+  despesas            String
+  dividas             String
+  receitas            String
+  contratos_firmados  String
+  contratos_pendentes String
 
   dono   Users  @relation(fields: [donoId], references: [id])
   donoId String

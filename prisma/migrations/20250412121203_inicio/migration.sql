@@ -32,6 +32,7 @@ CREATE TABLE `usuarios` (
 CREATE TABLE `empresas` (
     `id` VARCHAR(191) NOT NULL,
     `logotipo` VARCHAR(191) NOT NULL,
+    `status` ENUM('ANALISE', 'APROVADO', 'RECUSADO') NOT NULL DEFAULT 'ANALISE',
     `nome` VARCHAR(191) NOT NULL,
     `email` VARCHAR(191) NOT NULL,
     `setor` VARCHAR(191) NOT NULL,
@@ -45,13 +46,20 @@ CREATE TABLE `empresas` (
     `youtube` VARCHAR(191) NULL,
     `x` VARCHAR(191) NULL,
     `site` VARCHAR(191) NULL,
-    `patrimonio` INTEGER NULL,
-    `reserva_financeira` INTEGER NULL,
-    `acordo_operacional` BOOLEAN NULL,
-    `estrutura_governanca` BOOLEAN NULL,
-    `projecao_crescimento` VARCHAR(191) NULL,
-    `projecao_futura` VARCHAR(191) NULL,
-    `competidores` VARCHAR(191) NULL,
+    `patrimonio` VARCHAR(191) NOT NULL,
+    `reserva_financeira` VARCHAR(191) NOT NULL,
+    `acordo_operacional` VARCHAR(191) NOT NULL,
+    `estrutura_governanca` VARCHAR(191) NOT NULL,
+    `projecao_crescimento` VARCHAR(191) NOT NULL,
+    `projecao_futura` VARCHAR(191) NOT NULL,
+    `competidores` VARCHAR(191) NOT NULL,
+    `imposto` VARCHAR(191) NOT NULL,
+    `YTD` VARCHAR(191) NOT NULL,
+    `despesas` VARCHAR(191) NOT NULL,
+    `dividas` VARCHAR(191) NOT NULL,
+    `receitas` VARCHAR(191) NOT NULL,
+    `contratos_firmados` VARCHAR(191) NOT NULL,
+    `contratos_pendentes` VARCHAR(191) NOT NULL,
     `donoId` VARCHAR(191) NOT NULL,
     `date_update` DATETIME(3) NOT NULL,
     `date_create` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
@@ -164,19 +172,6 @@ CREATE TABLE `valuation` (
     `id` VARCHAR(191) NOT NULL,
     `value` DOUBLE NOT NULL,
     `docs` VARCHAR(191) NOT NULL,
-    `companyId` VARCHAR(191) NOT NULL,
-    `authorId` VARCHAR(191) NOT NULL,
-    `date_update` DATETIME(3) NOT NULL,
-    `date_create` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
-
-    PRIMARY KEY (`id`)
-) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-
--- CreateTable
-CREATE TABLE `documentos` (
-    `id` VARCHAR(191) NOT NULL,
-    `title` VARCHAR(191) NOT NULL,
-    `uri` VARCHAR(191) NOT NULL,
     `companyId` VARCHAR(191) NOT NULL,
     `authorId` VARCHAR(191) NOT NULL,
     `date_update` DATETIME(3) NOT NULL,
@@ -313,12 +308,6 @@ ALTER TABLE `valuation` ADD CONSTRAINT `valuation_companyId_fkey` FOREIGN KEY (`
 
 -- AddForeignKey
 ALTER TABLE `valuation` ADD CONSTRAINT `valuation_authorId_fkey` FOREIGN KEY (`authorId`) REFERENCES `usuarios`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE `documentos` ADD CONSTRAINT `documentos_companyId_fkey` FOREIGN KEY (`companyId`) REFERENCES `empresas`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE `documentos` ADD CONSTRAINT `documentos_authorId_fkey` FOREIGN KEY (`authorId`) REFERENCES `usuarios`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE `propostas_de_negocio` ADD CONSTRAINT `propostas_de_negocio_authorId_fkey` FOREIGN KEY (`authorId`) REFERENCES `usuarios`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
