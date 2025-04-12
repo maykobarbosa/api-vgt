@@ -8,7 +8,6 @@ import { partnerRoutes } from "./partnerRoutes";
 import { collaboratorRoutes } from "./collaboratorRoutes";
 import { valuationRoutes } from "./valuationRoutes";
 import { messageRoutes } from "./messageRoutes";
-import { docsRoutes } from "./docsRoutes";
 import { notificationRoutes } from "./notificationRoutes";
 import { leadsRoutes } from "./leadsRoutes";
 
@@ -24,7 +23,6 @@ router.use(partnerRoutes)
 router.use(collaboratorRoutes)
 router.use(valuationRoutes)
 router.use(messageRoutes)
-router.use(docsRoutes)
 router.use(notificationRoutes)
 router.use(leadsRoutes)
 

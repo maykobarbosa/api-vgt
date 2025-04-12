@@ -46,7 +46,6 @@ model Users {
   releases          Releases[]
   group             Group[]
   Valuation         Valuation[]
-  documents         Document[]
   business_proposal BusinessProposal[]
   negotiantion      Negotiation[]
   notifications     Notifications[]
@@ -59,9 +58,16 @@ enum TypeUser {
   EMPREENDEDOR
 }
 
+enum StatusCompany {
+  ANALISE
+  APROVADO
+  RECUSADO
+}
+
 model Companies {
-  id        String  @id @default(uuid())
+  id        String        @id @default(uuid())
   logotipo  String
+  status    StatusCompany @default(ANALISE)
   nome      String
   email     String
   setor     String
@@ -76,13 +82,20 @@ model Companies {
   x         String?
   site      String?
 
-  patrimonio           Int?
-  reserva_financeira   Int?
-  acordo_operacional   Boolean?
-  estrutura_governanca Boolean?
-  projecao_crescimento String?
-  projecao_futura      String?
-  competidores         String?
+  patrimonio           String
+  reserva_financeira   String
+  acordo_operacional   String
+  estrutura_governanca String
+  projecao_crescimento String
+  projecao_futura      String
+  competidores         String
+
+  imposto   String
+  YTD       String
+  despesas  String
+  dividas   String
+  caixa     String
+  contratos String
 
   dono   Users  @relation(fields: [donoId], references: [id])
   donoId String
@@ -95,7 +108,6 @@ model Companies {
   Partner          Partner[]
   Collaborator     Collaborator[]
   Valuation        Valuation[]
-  Document         Document[]
   BusinessProposal BusinessProposal[]
   Negotiation      Negotiation[]
 
@@ -245,24 +257,6 @@ model Valuation {
   date_create DateTime @default(now())
 
   @@map("valuation")
-}
-
-model Document {
-  id String @id @default(uuid())
-
-  title String
-  uri   String
-
-  company   Companies @relation(fields: [companyId], references: [id])
-  companyId String
-
-  author   Users  @relation(fields: [authorId], references: [id])
-  authorId String
-
-  date_update DateTime @updatedAt
-  date_create DateTime @default(now())
-
-  @@map("documentos")
 }
 
 enum StatusBusiness {

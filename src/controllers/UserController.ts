@@ -154,6 +154,7 @@ export class UserController {
         })
 
         return res.status(200).json({
+            msg: "Usuário autenticado com sucesso!",
             token,
             user: {
                 id: user.id,
