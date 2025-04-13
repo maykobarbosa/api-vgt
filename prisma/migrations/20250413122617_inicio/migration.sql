@@ -22,6 +22,7 @@ CREATE TABLE `usuarios` (
     `token_recover_password` VARCHAR(191) NULL,
     `date_update` DATETIME(3) NOT NULL,
     `date_create` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    `authorId` VARCHAR(191) NULL,
 
     UNIQUE INDEX `usuarios_email_key`(`email`),
     UNIQUE INDEX `usuarios_token_recover_password_key`(`token_recover_password`),

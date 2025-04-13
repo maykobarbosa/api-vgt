@@ -10,6 +10,7 @@ import { valuationRoutes } from "./valuationRoutes";
 import { messageRoutes } from "./messageRoutes";
 import { notificationRoutes } from "./notificationRoutes";
 import { leadsRoutes } from "./leadsRoutes";
+import { profileRoutes } from "./profileRoutes";
 
 
 const router = Router()
@@ -25,5 +26,6 @@ router.use(valuationRoutes)
 router.use(messageRoutes)
 router.use(notificationRoutes)
 router.use(leadsRoutes)
+router.use(profileRoutes)
 
 export { router }

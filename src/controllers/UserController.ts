@@ -2,6 +2,7 @@ import { prismaClient } from "../database/prismaClient";
 import { Request, Response } from "express";
 import bcrypt from 'bcrypt'
 import { sign } from "jsonwebtoken";
+import { getPresignedUrl } from "../utils/S3/getPresignedUrl";
 
 export class UserController {
     async RegistrarContaInvestidor(req: Request, res: Response) {
@@ -153,6 +154,8 @@ export class UserController {
             expiresIn: "1h"
         })
 
+        const avatar = user.avatar ? await getPresignedUrl(user.avatar) : "";
+
         return res.status(200).json({
             msg: "Usuário autenticado com sucesso!",
             token,
@@ -161,7 +164,7 @@ export class UserController {
                 nome: user.nome,
                 email: user.email,
                 tipo_usuario: user.type,
-                avatar: user.avatar,
+                avatar: avatar,
                 isAdmin: user.Administrador,
                 telefone: user.telefone,
                 data_nascimento: user.data_nascimento,

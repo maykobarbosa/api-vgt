@@ -10,6 +10,11 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum TypeUser {
+  INVESTIDOR
+  EMPREENDEDOR
+}
+
 model Users {
   id   String   @id @default(uuid())
   type TypeUser
@@ -53,11 +58,6 @@ model Users {
   authorId String?
 
   @@map("usuarios")
-}
-
-enum TypeUser {
-  INVESTIDOR
-  EMPREENDEDOR
 }
 
 enum StatusCompany {
