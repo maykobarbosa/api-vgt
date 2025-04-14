@@ -4,7 +4,7 @@ import { uploadFileToS3 } from "../utils/S3/uploadFIleS3";
 import { getPresignedUrl } from "../utils/S3/getPresignedUrl";
 
 export class CompanyController {
-    async createCompany(req: Request, res: Response) {
+    async CriarNovaEmpresa(req: Request, res: Response) {
         const {
             nome,
             email,
@@ -141,7 +141,7 @@ export class CompanyController {
         }
     }
 
-    async listCompanies(req: Request, res: Response) {
+    async ListarEmpresasPeloUsuarioId(req: Request, res: Response) {
         const {
             donoId
         } = req.params
@@ -184,6 +184,102 @@ export class CompanyController {
         } catch (error) {
             return res.status(500).json({
                 msgServerError: "Erro ao listar empresas.", error
+            })
+        }
+    }
+
+    async ListarEmpresasAprovadas(req: Request, res: Response) {
+        try {
+            const empresas = await prismaClient.companies.findMany({
+                where: {
+                    status: "APROVADO"
+                }
+            })
+
+            const empresasComUrl = await Promise.all(empresas.map(async (empresa) => {
+                const urlLogotipo = await getPresignedUrl(empresa.logotipo)
+
+                return {
+                    id: empresa.id,
+                    nome: empresa.nome,
+                    email: empresa.email,
+                    setor: empresa.setor,
+                    biografia: empresa.biografia,
+                    contato: empresa.contato,
+                    endereco: empresa.endereco,
+                    instagram: empresa.instagram,
+                    facebook: empresa.facebook,
+                    linkedin: empresa.linkedin,
+                    youtube: empresa.youtube,
+                    x: empresa.x,
+                    site: empresa.site,
+                    patrimonio: empresa.patrimonio,
+                    reserva: empresa.reserva_financeira,
+                    donoId: empresa.donoId,
+                    logotipo: urlLogotipo,
+                }
+            }))
+
+            return res.status(200).json({
+                sucess: "Empresas aprovadas foram listadas com sucesso.",
+                data: empresasComUrl
+            })
+        } catch (error) {
+            return res.status(500).json({
+                msgServerError: "Erro ao listar empresas por status.", error
+            })
+        }
+    }
+
+    async ListarEmpresaPorId(req: Request, res: Response) {
+        const {
+            empresaId
+        } = req.params
+
+        if (!empresaId) {
+            return res.status(400).json({
+                msgError: "Empresa não foi informada."
+            })
+        }
+
+        const empresa = await prismaClient.companies.findUnique({
+            where: {
+                id: empresaId
+            }
+        })
+
+        if (!empresa) {
+            return res.status(400).json({
+                msgError: "Empresa não foi encontrada no banco de dados."
+            })
+        }
+
+        try {
+            return res.status(200).json({
+                sucess: "Empresas aprovadas foram listadas com sucesso.",
+                data: {
+                    id: empresa.id,
+                    nome: empresa.nome,
+                    email: empresa.email,
+                    setor: empresa.setor,
+                    biografia: empresa.biografia,
+                    contato: empresa.contato,
+                    endereco: empresa.endereco,
+                    instagram: empresa.instagram,
+                    facebook: empresa.facebook,
+                    linkedin: empresa.linkedin,
+                    youtube: empresa.youtube,
+                    x: empresa.x,
+                    site: empresa.site,
+                    patrimonio: empresa.patrimonio,
+                    reserva: empresa.reserva_financeira,
+                    donoId: empresa.donoId,
+                    logotipo: empresa.logotipo ? await getPresignedUrl(empresa.logotipo) : "",
+                }
+            })
+        } catch (error) {
+            return res.status(500).json({
+                msgServerError: "Erro ao listar empresas por status.", error
             })
         }
     }

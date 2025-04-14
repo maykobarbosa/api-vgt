@@ -182,4 +182,50 @@ export class UserController {
             }
         })
     }
+
+    async ListarUsuarioPeloId(req: Request, res: Response) {
+        const {
+            usuarioId
+        } = req.params
+
+        if (!usuarioId) {
+            return res.status(400).json({
+                msgError: "Usuário não foi informado."
+            })
+        }
+
+        const usuario = await prismaClient.users.findUnique({
+            where: {
+                id: usuarioId
+            }
+        })
+
+        if (!usuario) {
+            return res.status(400).json({
+                msgError: "Usuário não foi encontrado no banco de dados."
+            })
+        }
+
+        try {
+            const usuarioComUrl = {
+                id: usuario.id,
+                avatar: usuario.avatar ? await getPresignedUrl(usuario.avatar) : "",
+                nome: usuario.nome,
+                biografia: usuario.biografia,
+                instagram: usuario.instagram,
+                facebook: usuario.facebook,
+                linkedin: usuario.linkedin,
+                website: usuario.website,
+            }
+
+            return res.status(200).json({
+                sucess: "Usuário listado com sucesso!",
+                data: usuarioComUrl
+            })
+        } catch (error) {
+            return res.status(500).json({
+                msgServerError: "Erro ao listar usuário pelo ID."
+            })
+        }
+    }
 }

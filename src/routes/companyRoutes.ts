@@ -20,9 +20,15 @@ companyRoutes.post("/create-company",
         { name: "contratos_firmados", maxCount: 1 },
         { name: "contratos_pendentes", maxCount: 1 }
     ]),
-    companyController.createCompany)
+    companyController.CriarNovaEmpresa)
 
 companyRoutes.get("/list-companies/:donoId",
-    companyController.listCompanies)
+    companyController.ListarEmpresasPeloUsuarioId)
+
+companyRoutes.get("/list-companies-approved",
+    companyController.ListarEmpresasAprovadas)
+
+companyRoutes.get("/list-company-by-id/:empresaId",
+    companyController.ListarEmpresaPorId)
 
 export { companyRoutes }
