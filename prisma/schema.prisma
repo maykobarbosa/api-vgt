@@ -13,11 +13,19 @@ datasource db {
 enum TypeUser {
   INVESTIDOR
   EMPREENDEDOR
+  ADMINISTRADOR
+}
+
+enum investorStatus {
+  APROVADO
+  RECUSADO
+  PENDENTE
 }
 
 model Users {
-  id   String   @id @default(uuid())
-  type TypeUser
+  id     String          @id @default(uuid())
+  type   TypeUser
+  status investorStatus? @default(PENDENTE)
 
   avatar String
 
@@ -40,8 +48,6 @@ model Users {
   website     String?
 
   biografia String?
-
-  Administrador Boolean @default(false)
 
   token_recover_password String?  @unique
   date_update            DateTime @updatedAt

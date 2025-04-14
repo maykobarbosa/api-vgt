@@ -1,7 +1,8 @@
 -- CreateTable
 CREATE TABLE `usuarios` (
     `id` VARCHAR(191) NOT NULL,
-    `type` ENUM('INVESTIDOR', 'EMPREENDEDOR') NOT NULL,
+    `type` ENUM('INVESTIDOR', 'EMPREENDEDOR', 'ADMINISTRADOR') NOT NULL,
+    `status` ENUM('APROVADO', 'RECUSADO', 'PENDENTE') NULL DEFAULT 'PENDENTE',
     `avatar` VARCHAR(191) NOT NULL,
     `email` VARCHAR(191) NOT NULL,
     `senha` VARCHAR(191) NOT NULL,
@@ -18,7 +19,6 @@ CREATE TABLE `usuarios` (
     `linkedin` VARCHAR(191) NULL,
     `website` VARCHAR(191) NULL,
     `biografia` VARCHAR(191) NULL,
-    `Administrador` BOOLEAN NOT NULL DEFAULT false,
     `token_recover_password` VARCHAR(191) NULL,
     `date_update` DATETIME(3) NOT NULL,
     `date_create` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),

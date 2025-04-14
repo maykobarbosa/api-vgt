@@ -51,7 +51,8 @@ export class UserController {
                     fontes_renda,
                     renda_anual,
                     type: "INVESTIDOR",
-                    avatar: ""
+                    avatar: "",
+                    status: "PENDENTE"
                 }
             })
 
@@ -102,6 +103,7 @@ export class UserController {
                     senha: passwordHash,
                     type: "EMPREENDEDOR",
                     avatar: "",
+                    status: "APROVADO"
                 }
             })
 
@@ -165,7 +167,6 @@ export class UserController {
                 email: user.email,
                 tipo_usuario: user.type,
                 avatar: avatar,
-                isAdmin: user.Administrador,
                 telefone: user.telefone,
                 data_nascimento: user.data_nascimento,
                 renda_anual: user.renda_anual,
