@@ -11,5 +11,6 @@ userRoutes.post("/registrar-investidor", userController.RegistrarContaInvestidor
 userRoutes.get("/listar-usuario/:usuarioId", userController.ListarUsuarioPeloId)
 userRoutes.get("/listar-investidores", userController.ListarInvestidores)
 userRoutes.get("/listar-empreendedores", userController.ListarEmpreendedores)
+userRoutes.put("/atualizar-status-usuario", userController.AtualizarStatusUsuario)
 
 export { userRoutes }

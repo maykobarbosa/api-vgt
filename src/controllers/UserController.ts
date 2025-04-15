@@ -292,4 +292,58 @@ export class UserController {
             })
         }
     }
+
+    async AtualizarStatusUsuario(req: Request, res: Response) {
+        const {
+            status,
+            usuarioId
+        } = req.body
+
+        if (!usuarioId) {
+            return res.status(400).json({
+                msgError: "Usuário não foi informado."
+            })
+        }
+
+        const usuario = await prismaClient.users.findUnique({
+            where: {
+                id: usuarioId
+            }
+        })
+
+        if (!usuario) {
+            return res.status(400).json({
+                msgError: "Usuário não foi encontrado no banco de dados."
+            })
+        }
+
+        if (!status) {
+            return res.status(400).json({
+                msgError: "Status não foi informado."
+            })
+        }
+
+        try {
+            const usuarioAtualizado = await prismaClient.users.update({
+                where: {
+                    id: usuarioId
+                },
+                data: {
+                    status,
+                }
+            })
+
+            return res.status(200).json({
+                sucess: "Status do usuário atualizado com sucesso!",
+                data: {
+                    ...usuarioAtualizado,
+                    avatar: usuarioAtualizado.avatar ? await getPresignedUrl(usuarioAtualizado.avatar) : ""
+                }
+            })
+        } catch (error) {
+            return res.status(500).json({
+                msgServerError: "Erro ao atualizar status do usuário."
+            })
+        }
+    }
 }
