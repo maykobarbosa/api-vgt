@@ -31,4 +31,10 @@ companyRoutes.get("/list-companies-approved",
 companyRoutes.get("/list-company-by-id/:empresaId",
     companyController.ListarEmpresaPorId)
 
+companyRoutes.get("/list-all-companies",
+    companyController.ListarTodasAsEmpresas)
+
+companyRoutes.put("/update-company-status",
+    companyController.AtualizarStatusEmpresa)
+
 export { companyRoutes }

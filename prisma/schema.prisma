@@ -20,6 +20,7 @@ enum investorStatus {
   APROVADO
   RECUSADO
   PENDENTE
+  LIXEIRA
 }
 
 model Users {
@@ -66,6 +67,7 @@ enum StatusCompany {
   ANALISE
   APROVADO
   RECUSADO
+  LIXEIRA
 }
 
 model Companies {

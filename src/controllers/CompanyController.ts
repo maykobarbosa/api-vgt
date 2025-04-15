@@ -273,13 +273,132 @@ export class CompanyController {
                     site: empresa.site,
                     patrimonio: empresa.patrimonio,
                     reserva: empresa.reserva_financeira,
+                    acordo: empresa.acordo_operacional,
+                    estrutura: empresa.estrutura_governanca,
+                    projecao: empresa.projecao_crescimento,
+                    projecao_futura: empresa.projecao_futura,
+                    competidores: empresa.competidores,
                     donoId: empresa.donoId,
-                    logotipo: empresa.logotipo ? await getPresignedUrl(empresa.logotipo) : "",
+                    logotipo: await getPresignedUrl(empresa.logotipo),
+                    imposto: await getPresignedUrl(empresa.imposto),
+                    YTD: await getPresignedUrl(empresa.YTD),
+                    despesas: await getPresignedUrl(empresa.despesas),
+                    dividas: await getPresignedUrl(empresa.dividas),
+                    receitas: await getPresignedUrl(empresa.receitas),
+                    contratos_firmados: await getPresignedUrl(empresa.contratos_firmados),
+                    contratos_pendentes: await getPresignedUrl(empresa.contratos_pendentes),
+                    status: empresa.status
                 }
             })
         } catch (error) {
             return res.status(500).json({
                 msgServerError: "Erro ao listar empresas por status.", error
+            })
+        }
+    }
+
+    async ListarTodasAsEmpresas(req: Request, res: Response) {
+        try {
+            const empresas = await prismaClient.companies.findMany()
+
+            const empresasComUrl = await Promise.all(empresas.map(async (empresa) => {
+                const urlLogotipo = await getPresignedUrl(empresa.logotipo)
+                const urlImposto = await getPresignedUrl(empresa.imposto)
+                const urlYtd = await getPresignedUrl(empresa.YTD)
+                const urlDespesas = await getPresignedUrl(empresa.despesas)
+                const urlDividas = await getPresignedUrl(empresa.dividas)
+                const urlReceitas = await getPresignedUrl(empresa.receitas)
+                const urlContratosFirmados = await getPresignedUrl(empresa.contratos_firmados)
+                const urlContratosPendentes = await getPresignedUrl(empresa.contratos_pendentes)
+
+                return {
+                    ...empresa,
+                    logotipo: urlLogotipo,
+                    imposto: urlImposto,
+                    YTD: urlYtd,
+                    despesas: urlDespesas,
+                    dividas: urlDividas,
+                    receitas: urlReceitas,
+                    contratos_firmados: urlContratosFirmados,
+                    contratos_pendentes: urlContratosPendentes,
+                }
+            }))
+
+            return res.status(200).json({
+                sucess: "Todas as empresas foram listadas com sucesso.",
+                data: empresasComUrl
+            })
+        } catch (error) {
+            return res.status(500).json({
+                msgServerError: "Erro ao listar todas as empresas.", error
+            })
+        }
+    }
+
+    async AtualizarStatusEmpresa(req: Request, res: Response) {
+        const {
+            companyId,
+            status
+        } = req.body
+
+        if (!companyId) {
+            return res.status(400).json({
+                msgError: "Empresa não foi informada."
+            })
+        }
+
+        const empresa = await prismaClient.companies.findUnique({
+            where: {
+                id: companyId
+            }
+        })
+
+        if (!empresa) {
+            return res.status(400).json({
+                msgError: "Empresa não foi encontrada no banco de dados."
+            })
+        }
+
+        if (!status) {
+            return res.status(400).json({
+                msgError: "Status não foi informado."
+            })
+        }
+
+        try {
+            const empresaAtualizada = await prismaClient.companies.update({
+                where: {
+                    id: companyId
+                },
+                data: {
+                    status: status
+                }
+            })
+
+            return res.status(200).json({
+                sucess: "Status da empresa foi atualizado com sucesso.",
+                data: {
+                    ...empresaAtualizada,
+                    patrimonio: empresa.patrimonio,
+                    reserva: empresa.reserva_financeira,
+                    acordo: empresa.acordo_operacional,
+                    estrutura: empresa.estrutura_governanca,
+                    projecao: empresa.projecao_crescimento,
+                    projecao_futura: empresa.projecao_futura,
+                    competidores: empresa.competidores,
+                    logotipo: await getPresignedUrl(empresaAtualizada.logotipo),
+                    imposto: await getPresignedUrl(empresaAtualizada.imposto),
+                    YTD: await getPresignedUrl(empresaAtualizada.YTD),
+                    despesas: await getPresignedUrl(empresaAtualizada.despesas),
+                    dividas: await getPresignedUrl(empresaAtualizada.dividas),
+                    receitas: await getPresignedUrl(empresaAtualizada.receitas),
+                    contratos_firmados: await getPresignedUrl(empresaAtualizada.contratos_firmados),
+                    contratos_pendentes: await getPresignedUrl(empresaAtualizada.contratos_pendentes),
+                }
+            })
+        } catch (error) {
+            return res.status(500).json({
+                msgServerError: "Erro ao atualizar status da empresa.", error
             })
         }
     }
