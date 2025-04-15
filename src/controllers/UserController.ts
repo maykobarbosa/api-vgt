@@ -211,6 +211,9 @@ export class UserController {
                 id: usuario.id,
                 avatar: usuario.avatar ? await getPresignedUrl(usuario.avatar) : "",
                 nome: usuario.nome,
+                email: usuario.email,
+                telefone: usuario.telefone,
+                data_nascimento: usuario.data_nascimento,
                 biografia: usuario.biografia,
                 instagram: usuario.instagram,
                 facebook: usuario.facebook,
@@ -225,6 +228,62 @@ export class UserController {
         } catch (error) {
             return res.status(500).json({
                 msgServerError: "Erro ao listar usuário pelo ID."
+            })
+        }
+    }
+
+    async ListarInvestidores(req: Request, res: Response) {
+        try {
+            const usuarios = await prismaClient.users.findMany({
+                where: {
+                    type: "INVESTIDOR"
+                }
+            })
+
+            const usuariosComUrl = await Promise.all(
+                usuarios.map(async (usuario) => {
+                    return {
+                        ...usuario,
+                        avatar: usuario.avatar ? await getPresignedUrl(usuario.avatar) : "",
+                    };
+                })
+            );
+
+            return res.status(200).json({
+                sucess: "Usuários listado com sucesso!",
+                data: usuariosComUrl
+            })
+        } catch (error) {
+            return res.status(500).json({
+                msgServerError: "Erro ao listar todos os usuários."
+            })
+        }
+    }
+
+    async ListarEmpreendedores(req: Request, res: Response) {
+        try {
+            const usuarios = await prismaClient.users.findMany({
+                where: {
+                    type: "EMPREENDEDOR"
+                }
+            })
+
+            const usuariosComUrl = await Promise.all(
+                usuarios.map(async (usuario) => {
+                    return {
+                        ...usuario,
+                        avatar: usuario.avatar ? await getPresignedUrl(usuario.avatar) : "",
+                    };
+                })
+            );
+
+            return res.status(200).json({
+                sucess: "Usuários listado com sucesso!",
+                data: usuariosComUrl
+            })
+        } catch (error) {
+            return res.status(500).json({
+                msgServerError: "Erro ao listar todos os usuários."
             })
         }
     }
