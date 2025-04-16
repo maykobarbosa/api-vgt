@@ -147,6 +147,12 @@ export class UserController {
             })
         }
 
+        if (user.status === "PENDENTE") {
+            return res.json({
+                pendente: "Sua conta ainda está em revisão, aguarde a aprovação."
+            })
+        }
+
         const token = sign({
             id: user.id,
             email: user.email,
