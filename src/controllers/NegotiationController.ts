@@ -1,302 +1,166 @@
 import { Request, Response } from "express";
 import { prismaClient } from "../database/prismaClient";
-import { NotificationController } from "./NotificationController";
 
-const notifications = new NotificationController()
-export class NegotiationController{
-    async initial (request: Request, response: Response){
+export class NegotiationController {
+    async CriarProposta(req: Request, res: Response) {
         const {
-            authorId,
-            proposed_investment,
-            financial_participation,
-            investment_purpose,
-            investment_return_period,
-            message,
-            companyId
-        } = request.body
-        // Remover as vírgulas
-        const stringWithoutCommas = proposed_investment.replace(/[$,]/g, "");
+            titulo,
+            descricao,
+            valor_investimento,
+            participacao_acionaria,
+            companyId,
+            autorId
+        } = req.body
 
-        // Converter a string para um número
-        const numericValue = parseFloat(stringWithoutCommas);
-        const result = await prismaClient.businessProposal.create({
-            data: {
-                authorId,
-                proposed_investment: numericValue,
-                financial_participation: parseFloat(financial_participation.replace(/[%]/g, "")),
-                investment_purpose,
-                investment_return_period,
-                message,
-                companyId,
+        if (!autorId || !companyId) {
+            return res.status(400).json({
+                msgError: "Autor ou empresa não foram informados."
+            })
+        }
 
-                status: "PENDENTE"
+        const autor = await prismaClient.users.findUnique({
+            where: {
+                id: autorId
             }
         })
-        const company = await prismaClient.companies.findUnique({
+
+        const empresa = await prismaClient.companies.findUnique({
             where: {
                 id: companyId
             }
         })
 
-        if(result&&company){
-            notifications.create(company.ownerId, `${company.name.toLocaleUpperCase()} recebeu uma proposta de investimento`)
-        }
-
-        return response.json(result)
-    }
-
-    async getById (request: Request, response: Response){
-        const { id } = request.params
-
-        const result = await prismaClient.businessProposal.findUnique({
-            where: {id},
-            include: {
-                negotiantion: {
-                    include: {
-                        user: {
-                            select: {
-                                avatar: true,
-                                full_name: true
-                            }
-                        }
-                    },
-                    orderBy: {
-                        date_create: "asc"
-                    }
-                },
-                user: {
-                    select: {
-                        avatar: true,
-                        full_name: true
-                    }
-                },
-                company: {
-                    select: {
-                        avatar: true,
-                        name: true,
-                        ownerId: true
-                    }
-                }
-            }
-        })
-
-        response.json(result)
-    }
-
-    async report (request: Request, response: Response){
-        const {
-            authorId,
-            proposed_investment,
-            financial_participation,
-            investment_purpose,
-            investment_return_period,
-            message,
-            companyId,
-
-            businessId,
-            report,
-
-            userNotification
-        } = request.body
-    // Remover as vírgulas
-    const stringWithoutCommas = proposed_investment.replace(/[$,]/g, "");
-
-    // Converter a string para um número
-    const numericValue = parseFloat(stringWithoutCommas);
-        const valid = await prismaClient.businessProposal.findUnique({
-            where:{
-                id: businessId
-            },
-            include:{
-                company: true
-            }
-        })
-        if(valid&&valid.status==="APROVADO"){
-            throw Error("Negociação encerrada! Proposta ACEITA")
-        }
-
-        const result = await prismaClient.negotiation.create({
-            data:{
-                authorId,
-                proposed_investment: numericValue,
-                financial_participation: parseFloat(financial_participation.replace(/[%]/g, "")),
-                investment_purpose,
-                investment_return_period,
-                message,
-                companyId,
-    
-                businessId,
-                report
-            }
-        })
-
-        if(result){
-            await prismaClient.businessProposal.update({
-                where:{
-                    id: businessId
-                },
-                data: {
-                    status: report
-                }
+        if (!autor || !empresa) {
+            return res.status(400).json({
+                msgError: "Autor ou empresa não foram encontrados no banco de dados."
             })
         }
-        if(result&&valid){
-            notifications.create(userNotification, `A proposta feita para ${valid.company.name.toLocaleUpperCase()} foi respondida.`)
+
+        if (!titulo || !descricao || !valor_investimento || !participacao_acionaria) {
+            return res.status(400).json({
+                msgError: "Todos os campos são obrigatórios."
+            })
         }
 
-        return response.json(result)
-    }
-
-    async getByCompany(request: Request, response: Response){
-        const {
-            id
-        } = request.params
-
-        const result = await prismaClient.businessProposal.findMany({
+        const propostaExistente = await prismaClient.proposta.findFirst({
             where: {
-                companyId: id
+                companyId,
+                autorId
             }
         })
 
-        return response.json(result)
-    }
-
-    async getByInvestor(request: Request, response: Response){
-        const {
-            id, status, pag
-        } = request.params
-
-
-        const filtro: any = {};
-        if(status!=="ALL"){
-            filtro.status = { equals: status } 
-        }
-        const result = await prismaClient.businessProposal.findMany({
-            where: {
-                AND: [
-                    filtro,
-                    {   
-                        authorId: id
-                        
-                    }
-                ]                
-            },
-            include:{
-                company: {
-                    select: {
-                        avatar: true,
-                        name: true
-                    }
-                },
-                user: {
-                    select: {
-                        avatar: true,
-                        full_name: true
-                    }
-                }
-            },
-            skip: Number(pag) * 15,
-            take: 15,
-            orderBy: { date_create: "desc" },
-        })
-        const total = await prismaClient.businessProposal.count({
-            where: {
-                AND: [
-                    filtro,
-                    {                           
-                        authorId: id
-                    }
-                ]        
-            },
-           
-        })
-
-        return response.json({result, total})
-    }
-
-    async getByClient(request: Request, response: Response){
-        const {
-            id, status, pag
-        } = request.params
-
-
-        const filtro: any = {};
-        if(status!=="ALL"){
-            filtro.status = { equals: status } 
+        if (propostaExistente) {
+            return res.status(400).json({
+                msgError: "Você já possui uma proposta para esta empresa."
+            })
         }
 
-        const result = await prismaClient.businessProposal.findMany({
-            where: {
-                AND: [
-                    filtro,
-                    {   
-                        company: {
-                            ownerId: id
-                        }
-                    }
-                ]                
-            },
-            include:{
-                // company: true,
-                user: {
-                    select: {
-                        avatar: true,
-                        full_name: true
-                    }
-                }
-            },
-            skip: Number(pag) * 15,
-            take: 15,
-            orderBy: { date_create: "desc" },
-        })
-        const total = await prismaClient.businessProposal.count({
-            where: {
-                AND: [
-                    filtro,
-                    {   
-                        company: {
-                            ownerId: id
-                        }
-                    }
-                ]        
-            },
-           
-        })
+        if (propostaExistente) {
+            return res.status(400).json({
 
-        return response.json({result, total})
+            })
+        }
+        try {
+            const proposta = await prismaClient.proposta.create({
+                data: {
+                    titulo,
+                    descricao,
+                    valor_investimento,
+                    participacao_acionaria,
+                    companyId,
+                    autorId,
+                    status: "PENDENTE"
+                }
+            })
+
+            return res.status(201).json({
+                sucess: "Proposta de investimento criada com sucesso.",
+                data: proposta
+            })
+        } catch (error) {
+            return res.status(500).json({
+                msgServerError: "Erro ao criar uma proposta de investimento.", error
+            })
+        }
     }
 
-    async getByClientOpened(request: Request, response: Response){
-        const {
-            id
-        } = request.params
+    async ListarPropostasPorUsuario(req: Request, res: Response) {
+        const { usuarioId } = req.params
 
+        if (!usuarioId) {
+            return res.status(400).json({
+                msgError: "Usuário não informado."
+            })
+        }
 
-        const result = await prismaClient.businessProposal.findMany({
+        const usuario = await prismaClient.users.findUnique({
             where: {
-                AND: [
-                    {
-                        OR: [
-                            {
-                                status: "CONTRAPROPOSTA"
-                            },
-                            {
-                                status: "PENDENTE"
-                            }
-                        ]
-                    },
-                    {
-                        company: {
-                            ownerId: id
-                        }
-                    }
-                ]                
-            },
-            include:{
-                company: true
+                id: usuarioId
             }
         })
 
-        return response.json(result)
+        if (!usuario) {
+            return res.status(400).json({
+                msgError: "Usuário não encontrado."
+            })
+        }
+
+        try {
+            const propostas = await prismaClient.proposta.findMany({
+                where: {
+                    autorId: usuarioId
+                }
+            })
+
+            return res.status(200).json({
+                sucess: "Proposta listadas com sucesso.",
+                data: propostas
+            })
+        } catch (error) {
+            return res.status(500).json({
+                msgServerError: "Erro ao listar propostas por usuário.", error
+            })
+        }
+    }
+
+    async ListarPropostasPorEmpresa(req: Request, res: Response) {
+        const {
+            companyId
+        } = req.params
+
+        if (!companyId) {
+            return res.status(400).json({
+                msgError: "Empresa não foi informada."
+            })
+        }
+
+        const empresa = await prismaClient.companies.findUnique({
+            where: {
+                id: companyId
+            }
+        })
+
+        if (!empresa) {
+            return res.status(400).json({
+                msgError: "Empresa não foi encontrada no banco de dados."
+            })
+        }
+
+        try {
+            const propostas = await prismaClient.proposta.findMany({
+                where: {
+                    companyId: companyId
+                }
+            })
+
+            return res.status(200).json({
+                success: "Propostas listadas com sucesso.",
+                data: propostas
+            })
+        } catch (error) {
+            return res.status(500).json({
+                msgServerError: "Erro ao listar propostas por empresa.", error
+            })
+        }
     }
 }

@@ -1,37 +1,40 @@
-import {  Router } from "express";
+import { Router } from "express";
 import { CompanyController } from "../controllers/CompanyController";
 import multer from "multer";
 import uploadConfig from "../config/upload";
-
+import { checkToken } from "../middlewares/validaToken";
 const companyRoutes = Router()
 
-
-const Company = new CompanyController() 
+const companyController = new CompanyController()
 
 const uploadAvatar = multer(uploadConfig.upload("./public/img/company"))
 
-companyRoutes.post("/company/register", 
-    uploadAvatar.single("file"),
-    (request, response) => Company.create(request, response)            
-)
-companyRoutes.get("/company/search-by-id/:id/:userId", Company.searchOne)
-companyRoutes.get("/company/search-by-id/:id", Company.byId)
-companyRoutes.get("/company/search-by-status/:status/:pag/:userId", Company.searchAll)
-companyRoutes.get("/company/total/:userId", Company.total)
-companyRoutes.put("/company/update", Company.update)
-companyRoutes.put("/company/update-avatar", 
-    uploadAvatar.single("file"), 
-    (request, response) =>Company.updateAvatar(request, response)
-)
-companyRoutes.delete("/company/delete/:id/:userId", Company.delete)
+companyRoutes.post("/create-company",
+    uploadAvatar.fields([
+        { name: "logotipo", maxCount: 1 },
+        { name: "imposto", maxCount: 1 },
+        { name: "ytd", maxCount: 1 },
+        { name: "despesas", maxCount: 1 },
+        { name: "dividas", maxCount: 1 },
+        { name: "receitas", maxCount: 1 },
+        { name: "contratos_firmados", maxCount: 1 },
+        { name: "contratos_pendentes", maxCount: 1 }
+    ]),
+    companyController.CriarNovaEmpresa)
 
+companyRoutes.get("/list-companies/:donoId", checkToken,
+    companyController.ListarEmpresasPeloUsuarioId)
 
-///investidor
+companyRoutes.get("/list-companies-approved", checkToken,
+    companyController.ListarEmpresasAprovadas)
 
-companyRoutes.get("/company/:pag", Company.list)
+companyRoutes.get("/list-company-by-id/:empresaId", checkToken,
+    companyController.ListarEmpresaPorId)
 
-///admin
-companyRoutes.get("/company-by-status/:status/:pag/:search", Company.listByStatus)
-companyRoutes.put("/company/valid", Company.validCompany)
+companyRoutes.get("/list-all-companies", checkToken,
+    companyController.ListarTodasAsEmpresas)
+
+companyRoutes.put("/update-company-status", checkToken,
+    companyController.AtualizarStatusEmpresa)
 
 export { companyRoutes }
