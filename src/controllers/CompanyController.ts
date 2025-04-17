@@ -256,7 +256,7 @@ export class CompanyController {
 
         try {
             return res.status(200).json({
-                sucess: "Empresas aprovadas foram listadas com sucesso.",
+                sucess: "Empresa listada com sucesso.",
                 data: {
                     id: empresa.id,
                     nome: empresa.nome,

@@ -122,4 +122,45 @@ export class NegotiationController {
             })
         }
     }
+
+    async ListarPropostasPorEmpresa(req: Request, res: Response) {
+        const {
+            companyId
+        } = req.params
+
+        if (!companyId) {
+            return res.status(400).json({
+                msgError: "Empresa não foi informada."
+            })
+        }
+
+        const empresa = await prismaClient.companies.findUnique({
+            where: {
+                id: companyId
+            }
+        })
+
+        if (!empresa) {
+            return res.status(400).json({
+                msgError: "Empresa não foi encontrada no banco de dados."
+            })
+        }
+
+        try {
+            const propostas = await prismaClient.proposta.findMany({
+                where: {
+                    companyId: companyId
+                }
+            })
+
+            return res.status(200).json({
+                success: "Propostas listadas com sucesso.",
+                data: propostas
+            })
+        } catch (error) {
+            return res.status(500).json({
+                msgServerError: "Erro ao listar propostas por empresa.", error
+            })
+        }
+    }
 }
