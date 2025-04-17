@@ -1,4 +1,4 @@
-import { PrismaClient} from "@prisma/client";
+{/*import { PrismaClient} from "@prisma/client";
 
 
 import { Faker, de, de_CH } from '@faker-js/faker';
@@ -32,3 +32,4 @@ async function seedDatabase() {
 }
 
 seedDatabase();
+*/}
