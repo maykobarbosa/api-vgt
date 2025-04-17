@@ -2,7 +2,7 @@ import { Router } from "express";
 import { CompanyController } from "../controllers/CompanyController";
 import multer from "multer";
 import uploadConfig from "../config/upload";
-
+import { checkToken } from "../middlewares/validaToken";
 const companyRoutes = Router()
 
 const companyController = new CompanyController()
@@ -22,19 +22,19 @@ companyRoutes.post("/create-company",
     ]),
     companyController.CriarNovaEmpresa)
 
-companyRoutes.get("/list-companies/:donoId",
+companyRoutes.get("/list-companies/:donoId", checkToken,
     companyController.ListarEmpresasPeloUsuarioId)
 
-companyRoutes.get("/list-companies-approved",
+companyRoutes.get("/list-companies-approved", checkToken,
     companyController.ListarEmpresasAprovadas)
 
-companyRoutes.get("/list-company-by-id/:empresaId",
+companyRoutes.get("/list-company-by-id/:empresaId", checkToken,
     companyController.ListarEmpresaPorId)
 
-companyRoutes.get("/list-all-companies",
+companyRoutes.get("/list-all-companies", checkToken,
     companyController.ListarTodasAsEmpresas)
 
-companyRoutes.put("/update-company-status",
+companyRoutes.put("/update-company-status", checkToken,
     companyController.AtualizarStatusEmpresa)
 
 export { companyRoutes }
