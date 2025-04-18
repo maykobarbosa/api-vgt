@@ -29,17 +29,7 @@ export class CompanyController {
             donoId
         } = req.body
 
-        const files = req.files as { [fieldname: string]: Express.Multer.File[] };
-
-        const logotipo = files["logotipo"]?.[0];
-        const imposto = files["imposto"]?.[0];
-        const ytd = files["ytd"]?.[0];
-        const despesas = files["despesas"]?.[0];
-        const dividas = files["dividas"]?.[0];
-        const receitas = files["receitas"]?.[0];
-        const contratos_firmados = files["contratos_firmados"]?.[0];
-        const contratos_pendentes = files["contratos_pendentes"]?.[0];
-
+        const logotipo = req.file
 
         // Verificar se existe donoId.
         if (!donoId) {
@@ -76,23 +66,9 @@ export class CompanyController {
             })
         }
 
-        // Verificar campos do terceiro passo.
-        if (!imposto || !ytd || !despesas || !dividas || !receitas || !contratos_firmados || !contratos_pendentes) {
-            return res.status(400).json({
-                msgError: "Preencha os campos obrigatórios do terceiro passo."
-            })
-        }
-
         try {
             // Fazer upload do logotipo para o S3.
             const logotipoUrl = await uploadFileToS3(logotipo, donoId)
-            const impostoUrl = await uploadFileToS3(imposto, donoId)
-            const ytdurl = await uploadFileToS3(ytd, donoId)
-            const despesasUrl = await uploadFileToS3(despesas, donoId)
-            const dividasUrl = await uploadFileToS3(dividas, donoId)
-            const receitasUrl = await uploadFileToS3(receitas, donoId)
-            const contratosUrl = await uploadFileToS3(contratos_firmados, donoId)
-            const contratosPendentesUrl = await uploadFileToS3(contratos_pendentes, donoId)
 
             // Tentativa de criar a empresa no banco de dados.
             const novaEmpresa = await prismaClient.companies.create({
@@ -119,13 +95,6 @@ export class CompanyController {
                     competidores,
                     donoId,
                     logotipo: logotipoUrl,
-                    imposto: impostoUrl,
-                    YTD: ytdurl,
-                    despesas: despesasUrl,
-                    dividas: dividasUrl,
-                    receitas: receitasUrl,
-                    contratos_firmados: contratosUrl,
-                    contratos_pendentes: contratosPendentesUrl
                 }
             })
 
@@ -141,50 +110,165 @@ export class CompanyController {
         }
     }
 
-    async ListarEmpresasPeloUsuarioId(req: Request, res: Response) {
+    async AnexarDocumentosEmpresa(req: Request, res: Response) {
         const {
-            donoId
-        } = req.params
+            companyId,
+        } = req.body
+
+        const files = req.files as { [fieldname: string]: Express.Multer.File[] };
+
+        const imposto = files["imposto"]?.[0];
+        const ytd = files["ytd"]?.[0];
+        const despesas = files["despesas"]?.[0];
+        const dividas = files["dividas"]?.[0];
+        const receitas = files["receitas"]?.[0];
+        const contratos_firmados = files["contratos_firmados"]?.[0];
+        const contratos_pendentes = files["contratos_pendentes"]?.[0];
+
+        if (!companyId) {
+            return res.status(400).json({
+                msgError: "CompanyId não foi informado."
+            })
+        }
+
+        const empresa = await prismaClient.companies.findUnique({
+            where: {
+                id: companyId
+            }
+        })
+
+        if (!empresa) {
+            return res.status(400).json({
+                msgError: "Empresa não foi encontrada no banco de dados."
+            })
+        }
+
+        if (!imposto && !ytd && !despesas && !dividas && !receitas && !contratos_firmados && !contratos_pendentes) {
+            return res.status(400).json({
+                msgError: "Nenhum documento foi informado."
+            })
+        }
 
         try {
-            const empresas = await prismaClient.companies.findMany({
+            let documents: any = {}
+
+            if (imposto) {
+                documents.imposto = await uploadFileToS3(imposto, companyId)
+            }
+
+            if (ytd) {
+                documents.YTD = await uploadFileToS3(ytd, companyId)
+            }
+
+            if (despesas) {
+                documents.despesas = await uploadFileToS3(despesas, companyId)
+            }
+
+            if (dividas) {
+                documents.dividas = await uploadFileToS3(dividas, companyId)
+            }
+
+            if (receitas) {
+                documents.receitas = await uploadFileToS3(receitas, companyId)
+            }
+
+            if (contratos_firmados) {
+                documents.contratos_firmados = await uploadFileToS3(contratos_firmados, companyId)
+            }
+
+            if (contratos_pendentes) {
+                documents.contratos_pendentes = await uploadFileToS3(contratos_pendentes, companyId)
+            }
+
+            const empresaAtualizada = await prismaClient.companies.update({
                 where: {
-                    donoId: donoId
-                }
+                    id: companyId
+                },
+                data: documents
             })
 
-            const empresasComUrl = await Promise.all(empresas.map(async (empresa) => {
-                const urlLogotipo = await getPresignedUrl(empresa.logotipo)
-                const urlImposto = await getPresignedUrl(empresa.imposto)
-                const urlYtd = await getPresignedUrl(empresa.YTD)
-                const urlDespesas = await getPresignedUrl(empresa.despesas)
-                const urlDividas = await getPresignedUrl(empresa.dividas)
-                const urlReceitas = await getPresignedUrl(empresa.receitas)
-                const urlContratosFirmados = await getPresignedUrl(empresa.contratos_firmados)
-                const urlContratosPendentes = await getPresignedUrl(empresa.contratos_pendentes)
-
-                return {
-                    ...empresa,
-                    logotipo: urlLogotipo,
-                    imposto: urlImposto,
-                    YTD: urlYtd,
-                    despesas: urlDespesas,
-                    dividas: urlDividas,
-                    receitas: urlReceitas,
-                    contratos_firmados: urlContratosFirmados,
-                    contratos_pendentes: urlContratosPendentes,
-                    porcentagem: empresa.status === "ANALISE" ? 50 : 100
-                }
-            }))
 
             return res.status(200).json({
-                sucess: "Empresas listadas com sucesso.",
-                data: empresasComUrl
+                sucess: "Documentos anexados com sucesso.",
+                data: empresaAtualizada
             })
         } catch (error) {
             return res.status(500).json({
-                msgServerError: "Erro ao listar empresas.", error
+                msgServerError: "Erro ao anexar documentos.", error
             })
+        }
+    }
+
+    async ListarEmpresasPeloUsuarioId(req: Request, res: Response) {
+        const { donoId } = req.params;
+
+        try {
+            const empresas = await prismaClient.companies.findMany({
+                where: { donoId }
+            });
+
+            const empresasComUrl = await Promise.all(
+                empresas.map(async (empresa) => {
+                    const urlLogotipo = await getPresignedUrl(empresa.logotipo);
+                    const urlImposto = empresa.imposto
+                        ? await getPresignedUrl(empresa.imposto)
+                        : null;
+                    const urlYtd = empresa.YTD
+                        ? await getPresignedUrl(empresa.YTD)
+                        : null;
+                    const urlDespesas = empresa.despesas
+                        ? await getPresignedUrl(empresa.despesas)
+                        : null;
+                    const urlDividas = empresa.dividas
+                        ? await getPresignedUrl(empresa.dividas)
+                        : null;
+                    const urlReceitas = empresa.receitas
+                        ? await getPresignedUrl(empresa.receitas)
+                        : null;
+                    const urlContratosFirmados = empresa.contratos_firmados
+                        ? await getPresignedUrl(empresa.contratos_firmados)
+                        : null;
+                    const urlContratosPendentes = empresa.contratos_pendentes
+                        ? await getPresignedUrl(empresa.contratos_pendentes)
+                        : null;
+
+                    const docs = [
+                        urlImposto,
+                        urlYtd,
+                        urlDespesas,
+                        urlDividas,
+                        urlReceitas,
+                        urlContratosFirmados,
+                        urlContratosPendentes,
+                    ];
+
+                    const documentsCount = docs.filter((u) => u != null).length;
+
+                    return {
+                        ...empresa,
+                        logotipo: urlLogotipo,
+                        imposto: urlImposto,
+                        YTD: urlYtd,
+                        despesas: urlDespesas,
+                        dividas: urlDividas,
+                        receitas: urlReceitas,
+                        contratos_firmados: urlContratosFirmados,
+                        contratos_pendentes: urlContratosPendentes,
+                        quantidade_documentos: documentsCount,
+                        porcentagem: empresa.status === "ANALISE" ? 50 : 100,
+                    };
+                })
+            );
+
+            return res.status(200).json({
+                sucess: "Empresas listadas com sucesso.",
+                data: empresasComUrl,
+            });
+        } catch (error) {
+            return res.status(500).json({
+                msgServerError: "Erro ao listar empresas.",
+                error,
+            });
         }
     }
 
@@ -280,13 +364,13 @@ export class CompanyController {
                     competidores: empresa.competidores,
                     donoId: empresa.donoId,
                     logotipo: await getPresignedUrl(empresa.logotipo),
-                    imposto: await getPresignedUrl(empresa.imposto),
-                    YTD: await getPresignedUrl(empresa.YTD),
-                    despesas: await getPresignedUrl(empresa.despesas),
-                    dividas: await getPresignedUrl(empresa.dividas),
-                    receitas: await getPresignedUrl(empresa.receitas),
-                    contratos_firmados: await getPresignedUrl(empresa.contratos_firmados),
-                    contratos_pendentes: await getPresignedUrl(empresa.contratos_pendentes),
+                    imposto: empresa.imposto ? await getPresignedUrl(empresa.imposto) : null,
+                    YTD: empresa.YTD ? await getPresignedUrl(empresa.YTD) : null,
+                    despesas: empresa.despesas ? await getPresignedUrl(empresa.despesas) : null,
+                    dividas: empresa.dividas ? await getPresignedUrl(empresa.dividas) : null,
+                    receitas: empresa.receitas ? await getPresignedUrl(empresa.receitas) : null,
+                    contratos_firmados: empresa.contratos_firmados ? await getPresignedUrl(empresa.contratos_firmados) : null,
+                    contratos_pendentes: empresa.contratos_pendentes ? await getPresignedUrl(empresa.contratos_pendentes) : null,
                     status: empresa.status
                 }
             })
@@ -303,13 +387,13 @@ export class CompanyController {
 
             const empresasComUrl = await Promise.all(empresas.map(async (empresa) => {
                 const urlLogotipo = await getPresignedUrl(empresa.logotipo)
-                const urlImposto = await getPresignedUrl(empresa.imposto)
-                const urlYtd = await getPresignedUrl(empresa.YTD)
-                const urlDespesas = await getPresignedUrl(empresa.despesas)
-                const urlDividas = await getPresignedUrl(empresa.dividas)
-                const urlReceitas = await getPresignedUrl(empresa.receitas)
-                const urlContratosFirmados = await getPresignedUrl(empresa.contratos_firmados)
-                const urlContratosPendentes = await getPresignedUrl(empresa.contratos_pendentes)
+                const urlImposto = empresa.imposto ? await getPresignedUrl(empresa.imposto) : null
+                const urlYtd = empresa.YTD ? await getPresignedUrl(empresa.YTD) : null
+                const urlDespesas = empresa.despesas ? await getPresignedUrl(empresa.despesas) : null
+                const urlDividas = empresa.dividas ? await getPresignedUrl(empresa.dividas) : null
+                const urlReceitas = empresa.receitas ? await getPresignedUrl(empresa.receitas) : null
+                const urlContratosFirmados = empresa.contratos_firmados ? await getPresignedUrl(empresa.contratos_firmados) : null
+                const urlContratosPendentes = empresa.contratos_pendentes ? await getPresignedUrl(empresa.contratos_pendentes) : null
 
                 return {
                     ...empresa,
@@ -387,13 +471,13 @@ export class CompanyController {
                     projecao_futura: empresa.projecao_futura,
                     competidores: empresa.competidores,
                     logotipo: await getPresignedUrl(empresaAtualizada.logotipo),
-                    imposto: await getPresignedUrl(empresaAtualizada.imposto),
-                    YTD: await getPresignedUrl(empresaAtualizada.YTD),
-                    despesas: await getPresignedUrl(empresaAtualizada.despesas),
-                    dividas: await getPresignedUrl(empresaAtualizada.dividas),
-                    receitas: await getPresignedUrl(empresaAtualizada.receitas),
-                    contratos_firmados: await getPresignedUrl(empresaAtualizada.contratos_firmados),
-                    contratos_pendentes: await getPresignedUrl(empresaAtualizada.contratos_pendentes),
+                    imposto: empresaAtualizada.imposto ? await getPresignedUrl(empresaAtualizada.imposto) : null,
+                    YTD: empresaAtualizada.YTD ? await getPresignedUrl(empresaAtualizada.YTD) : null,
+                    despesas: empresaAtualizada.despesas ? await getPresignedUrl(empresaAtualizada.despesas) : null,
+                    dividas: empresaAtualizada.dividas ? await getPresignedUrl(empresaAtualizada.dividas) : null,
+                    receitas: empresaAtualizada.receitas ? await getPresignedUrl(empresaAtualizada.receitas) : null,
+                    contratos_firmados: empresaAtualizada.contratos_firmados ? await getPresignedUrl(empresaAtualizada.contratos_firmados) : null,
+                    contratos_pendentes: empresaAtualizada.contratos_pendentes ? await getPresignedUrl(empresaAtualizada.contratos_pendentes) : null,
                 }
             })
         } catch (error) {

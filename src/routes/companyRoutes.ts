@@ -10,8 +10,11 @@ const companyController = new CompanyController()
 const uploadAvatar = multer(uploadConfig.upload("./public/img/company"))
 
 companyRoutes.post("/create-company", checkToken,
+    uploadAvatar.single("logotipo"),
+    companyController.CriarNovaEmpresa)
+
+companyRoutes.put("/upload-documents", checkToken,
     uploadAvatar.fields([
-        { name: "logotipo", maxCount: 1 },
         { name: "imposto", maxCount: 1 },
         { name: "ytd", maxCount: 1 },
         { name: "despesas", maxCount: 1 },
@@ -20,7 +23,7 @@ companyRoutes.post("/create-company", checkToken,
         { name: "contratos_firmados", maxCount: 1 },
         { name: "contratos_pendentes", maxCount: 1 }
     ]),
-    companyController.CriarNovaEmpresa)
+    companyController.AnexarDocumentosEmpresa)
 
 companyRoutes.get("/list-companies/:donoId", checkToken,
     companyController.ListarEmpresasPeloUsuarioId)
