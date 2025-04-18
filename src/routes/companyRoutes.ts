@@ -9,7 +9,7 @@ const companyController = new CompanyController()
 
 const uploadAvatar = multer(uploadConfig.upload("./public/img/company"))
 
-companyRoutes.post("/create-company",
+companyRoutes.post("/create-company", checkToken,
     uploadAvatar.fields([
         { name: "logotipo", maxCount: 1 },
         { name: "imposto", maxCount: 1 },
