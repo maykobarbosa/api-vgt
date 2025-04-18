@@ -9,7 +9,7 @@ export function checkToken(req: Request, res: Response, next: NextFunction) {
   const token = authHeader && authHeader.split(" ")[1]
 
 
-  Jwt.verify(token, "7d14e4b1831c8aa556f9720b5f74c4d7", function (err, decoded) {
+  Jwt.verify(token, process.env.JWT_SECRET as string, function (err, decoded) {
     if (err) {
       return res.status(500).send({ auth: false, message: 'Failed to authenticate token.' });
     }

@@ -9,7 +9,7 @@ const companyController = new CompanyController()
 
 const uploadAvatar = multer(uploadConfig.upload("./public/img/company"))
 
-companyRoutes.post("/create-company",
+companyRoutes.post("/create-company", checkToken,
     uploadAvatar.fields([
         { name: "logotipo", maxCount: 1 },
         { name: "imposto", maxCount: 1 },
@@ -22,19 +22,19 @@ companyRoutes.post("/create-company",
     ]),
     companyController.CriarNovaEmpresa)
 
-companyRoutes.get("/list-companies/:donoId",
+companyRoutes.get("/list-companies/:donoId", checkToken,
     companyController.ListarEmpresasPeloUsuarioId)
 
-companyRoutes.get("/list-companies-approved",
+companyRoutes.get("/list-companies-approved", checkToken,
     companyController.ListarEmpresasAprovadas)
 
-companyRoutes.get("/list-company-by-id/:empresaId",
+companyRoutes.get("/list-company-by-id/:empresaId", checkToken,
     companyController.ListarEmpresaPorId)
 
-companyRoutes.get("/list-all-companies",
+companyRoutes.get("/list-all-companies", checkToken,
     companyController.ListarTodasAsEmpresas)
 
-companyRoutes.put("/update-company-status",
+companyRoutes.put("/update-company-status", checkToken,
     companyController.AtualizarStatusEmpresa)
 
 export { companyRoutes }
