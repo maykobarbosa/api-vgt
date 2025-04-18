@@ -69,6 +69,9 @@ export class CompanyController {
         try {
             // Fazer upload do logotipo para o S3.
             const logotipoUrl = await uploadFileToS3(logotipo, donoId)
+            const patrimonioInt = parseInt(patrimonio)
+            const reservaFinanceiraInt = parseInt(reserva_financeira)
+            const projecaoCrescimentoInt = parseInt(projecao_crescimento)
 
             // Tentativa de criar a empresa no banco de dados.
             const novaEmpresa = await prismaClient.companies.create({
@@ -86,11 +89,11 @@ export class CompanyController {
                     linkedin,
                     x,
                     site,
-                    patrimonio,
-                    reserva_financeira,
+                    patrimonio: patrimonioInt,
+                    reserva_financeira: reservaFinanceiraInt,
                     acordo_operacional,
                     estrutura_governanca,
-                    projecao_crescimento,
+                    projecao_crescimento: projecaoCrescimentoInt,
                     projecao_futura,
                     competidores,
                     donoId,
@@ -299,6 +302,7 @@ export class CompanyController {
                     site: empresa.site,
                     patrimonio: empresa.patrimonio,
                     reserva: empresa.reserva_financeira,
+                    projecao_crescimento: empresa.projecao_crescimento,
                     donoId: empresa.donoId,
                     logotipo: urlLogotipo,
                 }
