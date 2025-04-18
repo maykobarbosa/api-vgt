@@ -96,13 +96,13 @@ model Companies {
   projecao_futura      String
   competidores         String
 
-  imposto             String
-  YTD                 String
-  despesas            String
-  dividas             String
-  receitas            String
-  contratos_firmados  String
-  contratos_pendentes String
+  imposto             String?
+  YTD                 String?
+  despesas            String?
+  dividas             String?
+  receitas            String?
+  contratos_firmados  String?
+  contratos_pendentes String?
 
   dono   Users  @relation(fields: [donoId], references: [id])
   donoId String
