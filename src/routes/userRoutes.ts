@@ -8,9 +8,9 @@ const userController = new UserController()
 userRoutes.post("/autenticar-usuario", userController.AutenticarUsuario)
 userRoutes.post("/registrar-empreendedor", userController.RegistrarContaEmpreendedor)
 userRoutes.post("/registrar-investidor", userController.RegistrarContaInvestidor)
-userRoutes.get("/listar-usuario/:usuarioId", checkToken, userController.ListarUsuarioPeloId)
-userRoutes.get("/listar-investidores", checkToken, userController.ListarInvestidores)
-userRoutes.get("/listar-empreendedores", checkToken, userController.ListarEmpreendedores)
-userRoutes.put("/atualizar-status-usuario", checkToken, userController.AtualizarStatusUsuario)
+userRoutes.get("/listar-usuario/:usuarioId", userController.ListarUsuarioPeloId)
+userRoutes.get("/listar-investidores", userController.ListarInvestidores)
+userRoutes.get("/listar-empreendedores", userController.ListarEmpreendedores)
+userRoutes.put("/atualizar-status-usuario", userController.AtualizarStatusUsuario)
 
 export { userRoutes }
