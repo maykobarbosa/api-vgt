@@ -162,31 +162,37 @@ export class UserController {
             expiresIn: "1h"
         })
 
-        const avatar = user.avatar ? await getPresignedUrl(user.avatar) : "";
+        try {
+            const avatar = user.avatar ? await getPresignedUrl(user.avatar) : "";
 
-        return res.status(200).json({
-            msg: "Usuário autenticado com sucesso!",
-            token,
-            user: {
-                id: user.id,
-                nome: user.nome,
-                email: user.email,
-                tipo_usuario: user.type,
-                avatar: avatar,
-                telefone: user.telefone,
-                data_nascimento: user.data_nascimento,
-                renda_anual: user.renda_anual,
-                fontes_renda: user.fontes_renda,
-                tipos_investimento: user.tipos_investimento,
-                tempo_experiencia: user.tempo_experiencia,
-                localizacao: user.localizacao,
-                instragram: user.instagram,
-                facebook: user.facebook,
-                linkedin: user.linkedin,
-                website: user.website,
-                biografia: user.biografia,
-            }
-        })
+            return res.status(200).json({
+                msg: "Usuário autenticado com sucesso!",
+                token,
+                user: {
+                    id: user.id,
+                    nome: user.nome,
+                    email: user.email,
+                    tipo_usuario: user.type,
+                    avatar: avatar,
+                    telefone: user.telefone,
+                    data_nascimento: user.data_nascimento,
+                    renda_anual: user.renda_anual,
+                    fontes_renda: user.fontes_renda,
+                    tipos_investimento: user.tipos_investimento,
+                    tempo_experiencia: user.tempo_experiencia,
+                    localizacao: user.localizacao,
+                    instragram: user.instagram,
+                    facebook: user.facebook,
+                    linkedin: user.linkedin,
+                    website: user.website,
+                    biografia: user.biografia,
+                }
+            })
+        } catch (error) {
+            return res.status(500).json({
+                msgServerError: "Erro ao autenticar usuário!"
+            })
+        }
     }
 
     async ListarUsuarioPeloId(req: Request, res: Response) {
