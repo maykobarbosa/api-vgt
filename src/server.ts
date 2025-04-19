@@ -11,9 +11,9 @@ const allowedOrigins = process.env.URL_FRONT?.split(',') || [];
 
 app.use(cors({
     origin: (origin, callback) => {
-      if (!origin) return callback(null, true)
-      if (allowedOrigins.includes(origin)) return callback(null, true)
-      return callback(new Error('Not allowed by CORS'))
+      if (!origin) return callback(null, true);
+      if (allowedOrigins.includes(origin)) return callback(null, true);
+      return callback(new Error('Not allowed by CORS'));
     },
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
     allowedHeaders: [
@@ -22,10 +22,11 @@ app.use(cors({
       'X-Requested-With',
       'Cache-Control',
       'Pragma',
-      'Accept'
+      'Accept',
+      'Expires' // 👈 novo header liberado aqui
     ],
     credentials: true
-  }))
+  }));
 
 
 app.use(express.json())
