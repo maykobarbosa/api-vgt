@@ -73,6 +73,12 @@ export class CompanyController {
             const reservaFinanceiraInt = parseInt(reserva_financeira)
             const projecaoCrescimentoInt = parseInt(projecao_crescimento)
 
+            if (isNaN(patrimonioInt) || isNaN(reservaFinanceiraInt) || isNaN(projecaoCrescimentoInt)) {
+                return res.status(400).json({
+                    msgError: "Campos numéricos inválidos."
+                })
+            }
+
             // Tentativa de criar a empresa no banco de dados.
             const novaEmpresa = await prismaClient.companies.create({
                 data: {
