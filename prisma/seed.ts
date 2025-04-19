@@ -28,7 +28,7 @@ async function main() {
             email: "admin@admin.com",
             senha: senhaHash,
             nome: "Administrador",
-            telefone: "+1 (407) 600-4501",
+            telefone: "14076004501",
             data_nascimento: "",
         }
     })
