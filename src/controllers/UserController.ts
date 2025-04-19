@@ -134,16 +134,16 @@ export class UserController {
         })
 
         if (!user) {
-            return res.status(400).json({
-                msgError: "E-mail não foi encontrado!"
+            return res.json({
+                invalido: "Credenciais inválidas."
             })
         }
 
         const validarSenha = await bcrypt.compare(senha, user.senha)
 
         if (!validarSenha) {
-            return res.status(400).json({
-                msgError: "Senha inválida!"
+            return res.json({
+                invalido: "Credenciais inválidas."
             })
         }
 

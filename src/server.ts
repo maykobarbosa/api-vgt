@@ -7,23 +7,28 @@ import { router } from './routes/routes'
 
 const app = express()
 // app.use(limiter);
-app.use((req, res, next) => {
-    res.header("Access-Control-Allow-Origin", "*")
-    res.header("Access-Control-Allow-Headers", "*")
-    res.header("Origin, X-Requested-With, X-PINGOTHER, Content-Type, Accept, Authorization")
-    res.header("Access-Control-Allow-Methods", "POST, GET, PUT, DELETE")
-    res.setHeader('Cache-Control', 'public, s-maxage=10, stale-while-revalidate=59')
-    app.use(cors({
-        origin: true
-      }))
-    next()
-  })
+const allowedOrigins = process.env.URL_FRONT?.split(',') || [];
+
+app.use(cors({
+    origin: (origin, callback) => {
+        if (!origin) return callback(null, true);
+        if (allowedOrigins.includes(origin)) {
+            callback(null, true);
+        } else {
+            callback(new Error('Not allowed by CORS'));
+        }
+    },
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+    credentials: true // se usar cookies ou headers com auth
+}));
+
 app.use(express.json())
 app.use(router)
 
 app.use(
     (err: Error, request: Request, response: Response, next: NextFunction) => {
-        if(err instanceof Error) {
+        if (err instanceof Error) {
             return response.status(400).json({
                 message: err.message,
             })
@@ -36,8 +41,15 @@ app.use(
     }
 )
 
-
-//localhost:3333/
-
 app.use(express.static('public'));
-app.listen(36102, ()=>console.log("Servidor rodando na porta 36102!!"))
+app.listen(36102, () => console.log("Servidor rodando na porta 36102!!"))
+
+process.on('SIGINT', () => {
+    console.log('Encerrando o servidor...')
+    process.exit(0)
+})
+
+process.on('SIGTERM', () => {
+    console.log('Encerrando o servidor...')
+    process.exit(0)
+})
