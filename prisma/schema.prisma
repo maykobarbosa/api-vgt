@@ -104,7 +104,7 @@ model Companies {
   contratos_firmados  String?
   contratos_pendentes String?
 
-  dono   Users  @relation(fields: [donoId], references: [id])
+  dono   Users  @relation(fields: [donoId], references: [id], onDelete: Cascade)
   donoId String
 
   date_update DateTime   @updatedAt
@@ -135,7 +135,7 @@ model Proposta {
   autor   Users  @relation(fields: [autorId], references: [id])
 
   companyId String
-  company   Companies @relation(fields: [companyId], references: [id])
+  company   Companies @relation(fields: [companyId], references: [id], onDelete: Cascade)
 
   Negociacao Negociacao[]
 
@@ -149,7 +149,7 @@ model Negociacao {
   id String @id @default(uuid())
 
   propostaId String
-  proposta   Proposta @relation(fields: [propostaId], references: [id])
+  proposta   Proposta @relation(fields: [propostaId], references: [id], onDelete: Cascade)
 
   date_create DateTime    @default(now()) @map("data_criacao")
   date_update DateTime    @updatedAt @map("data_atualizacao")
@@ -165,7 +165,7 @@ model Mensagens {
   autor   Users  @relation(fields: [autorId], references: [id])
 
   negociacaoId String
-  negociacao   Negociacao @relation(fields: [negociacaoId], references: [id])
+  negociacao   Negociacao @relation(fields: [negociacaoId], references: [id], onDelete: Cascade)
 
   date_create DateTime @default(now()) @map("data_criacao")
   date_update DateTime @updatedAt @map("data_atualizacao")

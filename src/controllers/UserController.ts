@@ -370,4 +370,51 @@ export class UserController {
             })
         }
     }
+
+    async DeletarUsuario(req: Request, res: Response) {
+        const {
+            usuarioId
+        } = req.params
+
+        if (!usuarioId) {
+            return res.status(400).json({
+                msgError: "Usuário não foi informado."
+            })
+        }
+
+        const usuario = await prismaClient.users.findUnique({
+            where: {
+                id: usuarioId
+            }
+        })
+
+        if (!usuario) {
+            return res.status(400).json({
+                msgError: "Usuário não foi encontrado no banco de dados."
+            })
+        }
+
+        if (usuario.status !== "LIXEIRA") {
+            return res.status(400).json({
+                msgError: "Usuário não está na lixeira, ele não pode ser deletado definitivamente."
+            })
+        }
+
+        try {
+            await prismaClient.users.delete({
+                where: {
+                    id: usuarioId
+                }
+            })
+
+            return res.status(200).json({
+                success: "Usuário deletado com sucesso!"
+            });
+        } catch (error) {
+            console.error("Erro ao deletar usuário:", error);
+            return res.status(500).json({
+                msgServerError: "Erro interno ao deletar usuário."
+            });
+        }
+    }
 }

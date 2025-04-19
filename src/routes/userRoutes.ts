@@ -12,5 +12,6 @@ userRoutes.get("/listar-usuario/:usuarioId", checkToken, userController.ListarUs
 userRoutes.get("/listar-investidores", checkToken, userController.ListarInvestidores)
 userRoutes.get("/listar-empreendedores", checkToken, userController.ListarEmpreendedores)
 userRoutes.put("/atualizar-status-usuario", checkToken, userController.AtualizarStatusUsuario)
+userRoutes.delete("/deletar-usuario/:usuarioId", checkToken, userController.DeletarUsuario)
 
 export { userRoutes }

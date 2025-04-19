@@ -505,4 +505,51 @@ export class CompanyController {
             })
         }
     }
+
+    async DeletarEmpresa(req: Request, res: Response) {
+        const {
+            companyId
+        } = req.params
+
+        if (!companyId) {
+            return res.status(400).json({
+                msgError: "Empresa não foi informada."
+            })
+        }
+
+        const empresa = await prismaClient.companies.findUnique({
+            where: {
+                id: companyId
+            }
+        })
+
+        if (!empresa) {
+            return res.status(400).json({
+                msgError: "Empresa não foi encontrada no banco de dados."
+            })
+        }
+
+        if (empresa.status !== "LIXEIRA") {
+            return res.status(400).json({
+                msgError: "Empresa não está na lixeira, ela não pode ser deletada definitivamente."
+            })
+        }
+
+        try {
+            await prismaClient.companies.delete({
+                where: {
+                    id: companyId
+                }
+            })
+
+            return res.status(200).json({
+                success: "Empresa deletada com sucesso!"
+            })
+
+        } catch (error) {
+            return res.status(500).json({
+                msgServerError: "Erro ao deletar empresa.", error
+            })
+        }
+    }
 }

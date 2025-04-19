@@ -40,4 +40,7 @@ companyRoutes.get("/list-all-companies", checkToken,
 companyRoutes.put("/update-company-status", checkToken,
     companyController.AtualizarStatusEmpresa)
 
+companyRoutes.delete("/delete-company/:companyId", checkToken,
+    companyController.DeletarEmpresa)
+
 export { companyRoutes }
