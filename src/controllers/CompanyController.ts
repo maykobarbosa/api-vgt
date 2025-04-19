@@ -107,10 +107,16 @@ export class CompanyController {
                 }
             })
 
+            const empresaAtualizada = {
+                ...novaEmpresa,
+                patrimonio: patrimonioInt.toString(),
+                reserva_financeira: reservaFinanceiraInt.toString(),
+            }
+
             // Retornar a empresa criada.
             return res.status(201).json({
                 sucess: "Empresa criada com sucesso.",
-                data: novaEmpresa
+                data: empresaAtualizada
             })
         } catch (error) {
             return res.status(500).json({
@@ -189,17 +195,16 @@ export class CompanyController {
                 documents.contratos_pendentes = await uploadFileToS3(contratos_pendentes, companyId)
             }
 
-            const empresaAtualizada = await prismaClient.companies.update({
+            await prismaClient.companies.update({
                 where: {
                     id: companyId
                 },
-                data: documents
+                data: documents,
             })
 
 
             return res.status(200).json({
                 sucess: "Documentos anexados com sucesso.",
-                data: empresaAtualizada
             })
         } catch (error) {
             return res.status(500).json({
@@ -265,6 +270,8 @@ export class CompanyController {
                         contratos_pendentes: urlContratosPendentes,
                         quantidade_documentos: documentsCount,
                         porcentagem: empresa.status === "ANALISE" ? 50 : 100,
+                        patrimonio: empresa.patrimonio.toString(),
+                        reserva_financeira: empresa.reserva_financeira.toString(),
                     };
                 })
             );
@@ -306,8 +313,8 @@ export class CompanyController {
                     youtube: empresa.youtube,
                     x: empresa.x,
                     site: empresa.site,
-                    patrimonio: empresa.patrimonio,
-                    reserva: empresa.reserva_financeira,
+                    patrimonio: empresa.patrimonio.toString(),
+                    reserva: empresa.reserva_financeira.toString(),
                     projecao_crescimento: empresa.projecao_crescimento,
                     donoId: empresa.donoId,
                     logotipo: urlLogotipo,
@@ -365,8 +372,8 @@ export class CompanyController {
                     youtube: empresa.youtube,
                     x: empresa.x,
                     site: empresa.site,
-                    patrimonio: empresa.patrimonio,
-                    reserva_financeira: empresa.reserva_financeira,
+                    patrimonio: empresa.patrimonio.toString(),
+                    reserva_financeira: empresa.reserva_financeira.toString(),
                     acordo_operacional: empresa.acordo_operacional,
                     estrutura_governanca: empresa.estrutura_governanca,
                     projecao_crescimento: empresa.projecao_crescimento,
@@ -415,6 +422,8 @@ export class CompanyController {
                     receitas: urlReceitas,
                     contratos_firmados: urlContratosFirmados,
                     contratos_pendentes: urlContratosPendentes,
+                    patrimonio: empresa.patrimonio.toString(),
+                    reserva_financeira: empresa.reserva_financeira.toString(),
                 }
             }))
 
@@ -473,8 +482,8 @@ export class CompanyController {
                 sucess: "Status da empresa foi atualizado com sucesso.",
                 data: {
                     ...empresaAtualizada,
-                    patrimonio: empresa.patrimonio,
-                    reserva_financeira: empresa.reserva_financeira,
+                    patrimonio: empresa.patrimonio.toString(),
+                    reserva_financeira: empresa.reserva_financeira.toString(),
                     acordo_operacional: empresa.acordo_operacional,
                     estrutura_governanca: empresa.estrutura_governanca,
                     projecao_crescimento: empresa.projecao_crescimento,

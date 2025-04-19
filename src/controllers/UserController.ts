@@ -153,6 +153,18 @@ export class UserController {
             })
         }
 
+        if (user.status === "RECUSADO") {
+            return res.json({
+                recusado: "Sua conta foi recusada, você não pode acessar a plataforma."
+            })
+        }
+
+        if (user.status === "LIXEIRA") {
+            return res.json({
+                lixeira: "Sua conta foi removida da plataforma, você não pode acessar a plataforma."
+            })
+        }
+
         const token = sign({
             id: user.id,
             email: user.email,
