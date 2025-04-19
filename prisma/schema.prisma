@@ -88,8 +88,8 @@ model Companies {
   x         String?
   site      String?
 
-  patrimonio           Int
-  reserva_financeira   Int
+  patrimonio           BigInt
+  reserva_financeira   BigInt
   acordo_operacional   String
   estrutura_governanca String
   projecao_crescimento Int
