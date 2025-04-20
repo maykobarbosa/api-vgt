@@ -3,6 +3,7 @@ import { Request, Response } from "express";
 import bcrypt from 'bcrypt'
 import { sign } from "jsonwebtoken";
 import { getPresignedUrl } from "../utils/S3/getPresignedUrl";
+import { deleteFileFromS3 } from "../utils/S3/deleteFileFromS3"
 
 export class UserController {
     async RegistrarContaInvestidor(req: Request, res: Response) {
@@ -401,6 +402,24 @@ export class UserController {
         }
 
         try {
+            if (usuario.avatar) {
+                await deleteFileFromS3(usuario.avatar)
+            }
+
+            const empresas = await prismaClient.companies.findMany({
+                where: {
+                    donoId: usuarioId
+                }
+            })
+
+            await Promise.all(
+                empresas.map(async (empresa) => {
+                    if (empresa.logotipo) {
+                        await deleteFileFromS3(empresa.logotipo)
+                    }
+                })
+            )
+
             await prismaClient.users.delete({
                 where: {
                     id: usuarioId

@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import { prismaClient } from "../database/prismaClient";
 import { uploadFileToS3 } from "../utils/S3/uploadFIleS3";
 import { getPresignedUrl } from "../utils/S3/getPresignedUrl";
+import { deleteFileFromS3 } from "../utils/S3/deleteFileFromS3";
 
 export class CompanyController {
     async CriarNovaEmpresa(req: Request, res: Response) {
@@ -536,6 +537,10 @@ export class CompanyController {
         }
 
         try {
+            if (empresa.logotipo) {
+                await deleteFileFromS3(empresa.logotipo)
+            }
+
             await prismaClient.companies.delete({
                 where: {
                     id: companyId
