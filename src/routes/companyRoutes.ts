@@ -43,4 +43,8 @@ companyRoutes.put("/update-company-status", checkToken,
 companyRoutes.delete("/delete-company/:companyId", checkToken,
     companyController.DeletarEmpresa)
 
+companyRoutes.put("/update-company", checkToken,
+    uploadAvatar.single("logotipo"),
+    companyController.AtualizarEmpresa)
+
 export { companyRoutes }

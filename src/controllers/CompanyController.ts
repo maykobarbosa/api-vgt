@@ -507,6 +507,129 @@ export class CompanyController {
         }
     }
 
+    async AtualizarEmpresa(req: Request, res: Response) {
+        const {
+            companyId,
+            nome,
+            email,
+            endereco,
+            contato,
+            biografia,
+
+            patrimonio,
+            reserva_financeira,
+            acordo_operacional,
+            estrutura_governanca,
+            projecao_crescimento,
+            projecao_futura,
+            competidores,
+
+            instagram,
+            facebook,
+            linkedin,
+            youtube,
+            x,
+            site,
+        } = req.body
+
+        const logotipo = req.file
+
+        if (!companyId) {
+            return res.status(400).json({
+                msgError: "Empresa não foi informada."
+            })
+        }
+
+        const empresa = await prismaClient.companies.findUnique({
+            where: {
+                id: companyId
+            }
+        })
+
+        if (!empresa) {
+            return res.status(400).json({
+                msgError: "Empresa não foi encontrada no banco de dados."
+            })
+        }
+
+        try {
+            let empresaAtualizada: any = {}
+
+            if (logotipo) {
+                empresaAtualizada.logotipo = await uploadFileToS3(logotipo, companyId)
+            }
+            if (nome) {
+                empresaAtualizada.nome = nome
+            }
+            if (email) {
+                empresaAtualizada.email = email
+            }
+            if (endereco) {
+                empresaAtualizada.endereco = endereco
+            }
+            if (contato) {
+                empresaAtualizada.contato = contato
+            }
+            if (biografia) {
+                empresaAtualizada.biografia = biografia
+            }
+            if (patrimonio) {
+                empresaAtualizada.patrimonio = parseInt(patrimonio)
+            }
+            if (reserva_financeira) {
+                empresaAtualizada.reserva_financeira = parseInt(reserva_financeira)
+            }
+            if (acordo_operacional) {
+                empresaAtualizada.acordo_operacional = acordo_operacional
+            }
+            if (estrutura_governanca) {
+                empresaAtualizada.estrutura_governanca = estrutura_governanca
+            }
+            if (projecao_crescimento) {
+                empresaAtualizada.projecao_crescimento = parseInt(projecao_crescimento)
+            }
+            if (projecao_futura) {
+                empresaAtualizada.projecao_futura = projecao_futura
+            }
+            if (competidores) {
+                empresaAtualizada.competidores = competidores
+            }
+            if (instagram) {
+                empresaAtualizada.instagram = instagram
+            }
+            if (facebook) {
+                empresaAtualizada.facebook = facebook
+            }
+            if (linkedin) {
+                empresaAtualizada.linkedin = linkedin
+            }
+            if (youtube) {
+                empresaAtualizada.youtube = youtube
+            }
+            if (x) {
+                empresaAtualizada.x = x
+            }
+            if (site) {
+                empresaAtualizada.site = site
+            }
+
+            await prismaClient.companies.update({
+                where: {
+                    id: companyId
+                },
+                data: empresaAtualizada
+            })
+
+            return res.status(200).json({
+                success: "Empresa atualizada com sucesso."
+            })
+        } catch (error) {
+            return res.status(500).json({
+                msgServerError: "Erro ao atualizar empresa.", error
+            })
+        }
+    }
+
     async DeletarEmpresa(req: Request, res: Response) {
         const {
             companyId
