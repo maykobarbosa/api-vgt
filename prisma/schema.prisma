@@ -119,6 +119,7 @@ enum StatusProposta {
   ACEITA
   RECUSADA
   CONTRAPROPOSTA
+  FINALIZADA
 }
 
 enum StatusNegociacao {

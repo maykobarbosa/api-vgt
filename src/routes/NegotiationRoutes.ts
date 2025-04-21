@@ -11,5 +11,7 @@ negotiationRoutes.get("/list-proposals-by-company/:usuarioId", checkToken, negot
 negotiationRoutes.get("/list-proposal-by-id/:propostaId", checkToken, negotiationController.ListarPropostaPorId)
 negotiationRoutes.get("/list-messages/:propostaId", checkToken, negotiationController.ListarMensagens)
 negotiationRoutes.post("/send-message-to-entrepreneur", checkToken, negotiationController.CriarMensagem)
+negotiationRoutes.put("/update-proposal", checkToken, negotiationController.AtualizarProposta)
+negotiationRoutes.put("/update-negotiation", checkToken, negotiationController.AtualizarNegociacao)
 
 export { negotiationRoutes }

@@ -345,4 +345,102 @@ export class NegotiationController {
             })
         }
     }
+
+    async AtualizarProposta(req: Request, res: Response) {
+        const {
+            propostaId,
+            status
+        } = req.body
+
+        if (!propostaId) {
+            return res.status(400).json({
+                msgError: "Proposta não encontrada"
+            })
+        }
+
+        const proposta = await prismaClient.proposta.findUnique({
+            where: {
+                id: propostaId
+            }
+        })
+
+        if (!proposta) {
+            return res.status(400).json({
+                msgError: "Proposta não encontrada no banco de dados."
+            })
+        }
+
+        try {
+            const propostaAtualizada = await prismaClient.proposta.update({
+                where: {
+                    id: propostaId
+                },
+                data: {
+                    status: status
+                }
+            })
+
+            return res.status(200).json({
+                success: "Proposta atualizada com sucesso.",
+                data: {
+                    ...propostaAtualizada,
+                    valor_investimento: propostaAtualizada.valor_investimento.toString(),
+                    participacao_acionaria: propostaAtualizada.participacao_acionaria.toString()
+                }
+            })
+        } catch (error) {
+            return res.status(500).json({
+                msgServerError: "Erro ao atualizar proposta.", error
+            })
+        }
+    }
+
+    async AtualizarNegociacao(req: Request, res: Response) {
+        const {
+            propostaId,
+            statusNegociacao
+        } = req.body
+
+        if (!propostaId) {
+            return res.status(400).json({
+                msgError: "Proposta não encontrada"
+            })
+        }
+
+        const proposta = await prismaClient.proposta.findUnique({
+            where: {
+                id: propostaId
+            }
+        })
+
+        if (!proposta) {
+            return res.status(400).json({
+                msgError: "Proposta não encontrada no banco de dados."
+            })
+        }
+
+        try {
+            const propostaAtualizada = await prismaClient.proposta.update({
+                where: {
+                    id: propostaId
+                },
+                data: {
+                    statusNegociacao: statusNegociacao
+                }
+            })
+
+            return res.status(200).json({
+                success: "Negociação atualizada com sucesso.",
+                data: {
+                    ...propostaAtualizada,
+                    valor_investimento: propostaAtualizada.valor_investimento.toString(),
+                    participacao_acionaria: propostaAtualizada.participacao_acionaria.toString()
+                }
+            })
+        } catch (error) {
+            return res.status(500).json({
+                msgServerError: "Erro ao atualizar negociação.", error
+            })
+        }
+    }
 }
