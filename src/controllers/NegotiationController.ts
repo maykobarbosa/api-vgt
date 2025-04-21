@@ -55,11 +55,6 @@ export class NegotiationController {
             })
         }
 
-        if (propostaExistente) {
-            return res.status(400).json({
-
-            })
-        }
         try {
             const proposta = await prismaClient.proposta.create({
                 data: {
@@ -69,13 +64,28 @@ export class NegotiationController {
                     participacao_acionaria,
                     companyId,
                     autorId,
-                    status: "PENDENTE"
+                    status: "PENDENTE",
+                    statusNegociacao: "PENDENTE"
+                }
+            })
+
+            await prismaClient.mensagens.create({
+                data: {
+                    autorId: proposta.autorId,
+                    propostaId: proposta.id,
+                    mensagem: proposta.descricao,
+                    valor_investimento: proposta.valor_investimento,
+                    participacao_acionaria: proposta.participacao_acionaria
                 }
             })
 
             return res.status(201).json({
                 sucess: "Proposta de investimento criada com sucesso.",
-                data: proposta
+                data: {
+                    ...proposta,
+                    valor_investimento: proposta.valor_investimento.toString(),
+                    participacao_acionaria: proposta.participacao_acionaria.toString()
+                }
             })
         } catch (error) {
             return res.status(500).json({
@@ -112,9 +122,15 @@ export class NegotiationController {
                 }
             })
 
+            const propostasAtualizadas = propostas.map(proposta => ({
+                ...proposta,
+                valor_investimento: proposta.valor_investimento.toString(),
+                participacao_acionaria: proposta.participacao_acionaria.toString()
+            }))
+
             return res.status(200).json({
                 sucess: "Proposta listadas com sucesso.",
-                data: propostas
+                data: propostasAtualizadas
             })
         } catch (error) {
             return res.status(500).json({
@@ -125,41 +141,207 @@ export class NegotiationController {
 
     async ListarPropostasPorEmpresa(req: Request, res: Response) {
         const {
-            companyId
+            usuarioId,
         } = req.params
 
-        if (!companyId) {
+        if (!usuarioId) {
             return res.status(400).json({
-                msgError: "Empresa não foi informada."
+                msgError: "Usuario não foi informada."
             })
         }
 
-        const empresa = await prismaClient.companies.findUnique({
+        const empresas = await prismaClient.companies.findMany({
             where: {
-                id: companyId
+                donoId: usuarioId
+            },
+            select: {
+                id: true,
             }
         })
 
-        if (!empresa) {
-            return res.status(400).json({
-                msgError: "Empresa não foi encontrada no banco de dados."
-            })
-        }
-
         try {
+            const empresaIds = empresas.map(empresa => empresa.id)
+
             const propostas = await prismaClient.proposta.findMany({
                 where: {
-                    companyId: companyId
+                    companyId: {
+                        in: empresaIds
+                    }
+                },
+                orderBy: {
+                    date_create: "desc"
                 }
             })
 
+            const propostasAtualizadas = propostas.map(proposta => ({
+                ...proposta,
+                valor_investimento: proposta.valor_investimento.toString(),
+                participacao_acionaria: proposta.participacao_acionaria.toString()
+            }))
+
             return res.status(200).json({
                 success: "Propostas listadas com sucesso.",
-                data: propostas
+                data: propostasAtualizadas
             })
         } catch (error) {
             return res.status(500).json({
                 msgServerError: "Erro ao listar propostas por empresa.", error
+            })
+        }
+    }
+
+    async ListarPropostaPorId(req: Request, res: Response) {
+        const {
+            propostaId
+        } = req.params
+
+        if (!propostaId) {
+            return res.status(400).json({
+                msgError: "Proposta não informada."
+            })
+        }
+
+        const proposta = await prismaClient.proposta.findUnique({
+            where: {
+                id: propostaId
+            }
+        })
+
+        if (!proposta) {
+            return res.status(400).json({
+                msgError: "Proposta não encontrada no banco de dados."
+            })
+        }
+
+        try {
+            const propostaAtualizada = {
+                ...proposta,
+                valor_investimento: proposta.valor_investimento.toString(),
+                participacao_acionaria: proposta.participacao_acionaria.toString()
+            }
+
+            return res.status(200).json({
+                success: "Proposta listada com sucesso.",
+                data: propostaAtualizada
+            })
+        } catch (error) {
+            return res.status(500).json({
+                msgServerError: "Erro ao listar proposta por id.", error
+            })
+        }
+    }
+
+    async ListarMensagens(req: Request, res: Response) {
+        const {
+            propostaId
+        } = req.params
+
+        if (!propostaId) {
+            return res.status(400).json({
+                msgError: "Proposta não informada."
+            })
+        }
+
+        const proposta = await prismaClient.proposta.findUnique({
+            where: {
+                id: propostaId
+            }
+        })
+
+        if (!proposta) {
+            return res.status(400).json({
+                msgError: "Proposta não encontrada no banco de dados."
+            })
+        }
+        try {
+            const mensagens = await prismaClient.mensagens.findMany({
+                where: {
+                    propostaId: propostaId
+                },
+                orderBy: {
+                    date_create: "asc"
+                }
+            })
+
+            const mensagensAtualizadas = mensagens.map(mensagem => ({
+                ...mensagem,
+                valor_investimento: mensagem.valor_investimento?.toString(),
+                participacao_acionaria: mensagem.participacao_acionaria?.toString()
+            }))
+
+            return res.status(200).json({
+                success: "Mensagens listadas com sucesso.",
+                data: mensagensAtualizadas
+            })
+
+        } catch (error) {
+            return res.status(500).json({
+                msgServerError: "Erro ao listar negociação.", error
+            })
+        }
+    }
+
+    async CriarMensagem(req: Request, res: Response) {
+        const {
+            propostaId,
+            autorId,
+            mensagem,
+            valor_investimento,
+            participacao_acionaria
+        } = req.body
+
+        if (!propostaId || !autorId) {
+            return res.status(400).json({
+                msgError: "Proposta ou autor não informados."
+            })
+        }
+
+        const proposta = await prismaClient.proposta.findUnique({
+            where: {
+                id: propostaId
+            }
+        })
+
+        const autor = await prismaClient.users.findUnique({
+            where: {
+                id: autorId
+            }
+        })
+
+        if (!proposta || !autor) {
+            return res.status(400).json({
+                msgError: "Proposta ou autor não encontrados no banco de dados."
+            })
+        }
+
+        if (!mensagem) {
+            return res.status(400).json({
+                msgError: "Mensagem não foi informada."
+            })
+        }
+
+        try {
+            const novaMensagem = await prismaClient.mensagens.create({
+                data: {
+                    propostaId,
+                    autorId,
+                    mensagem,
+                    valor_investimento: valor_investimento ? valor_investimento : null,
+                    participacao_acionaria: participacao_acionaria ? participacao_acionaria : null
+                },
+            })
+
+            return res.status(201).json({
+                success: "Mensagem criada com sucesso.",
+                data: {
+                    ...novaMensagem,
+                    valor_investimento: novaMensagem.valor_investimento?.toString(),
+                    participacao_acionaria: novaMensagem.participacao_acionaria?.toString()
+                }
+            })
+        } catch (error) {
+            return res.status(500).json({
+                msgServerError: "Erro ao criar mensagem.", error
             })
         }
     }

@@ -121,15 +121,22 @@ enum StatusProposta {
   CONTRAPROPOSTA
 }
 
+enum StatusNegociacao {
+  PENDENTE
+  ACEITA
+  RECUSADA
+}
+
 model Proposta {
   id String @id @default(uuid())
 
-  status StatusProposta @default(PENDENTE)
+  status           StatusProposta   @default(PENDENTE)
+  statusNegociacao StatusNegociacao @default(PENDENTE)
 
   titulo                 String
   descricao              String
-  valor_investimento     String
-  participacao_acionaria String
+  valor_investimento     BigInt
+  participacao_acionaria Int
 
   autorId String
   autor   Users  @relation(fields: [autorId], references: [id])
@@ -137,25 +144,11 @@ model Proposta {
   companyId String
   company   Companies @relation(fields: [companyId], references: [id], onDelete: Cascade)
 
-  Negociacao Negociacao[]
-
-  date_create DateTime @default(now()) @map("data_criacao")
-  date_update DateTime @updatedAt @map("data_atualizacao")
-
-  @@map("proposta_investimento")
-}
-
-model Negociacao {
-  id String @id @default(uuid())
-
-  propostaId String
-  proposta   Proposta @relation(fields: [propostaId], references: [id], onDelete: Cascade)
-
   date_create DateTime    @default(now()) @map("data_criacao")
   date_update DateTime    @updatedAt @map("data_atualizacao")
   Mensagens   Mensagens[]
 
-  @@map("negociacao_para_proposta")
+  @@map("proposta_investimento")
 }
 
 model Mensagens {
@@ -164,8 +157,12 @@ model Mensagens {
   autorId String
   autor   Users  @relation(fields: [autorId], references: [id])
 
-  negociacaoId String
-  negociacao   Negociacao @relation(fields: [negociacaoId], references: [id], onDelete: Cascade)
+  mensagem               String
+  valor_investimento     BigInt?
+  participacao_acionaria Int?
+
+  propostaId String
+  proposta   Proposta @relation(fields: [propostaId], references: [id], onDelete: Cascade)
 
   date_create DateTime @default(now()) @map("data_criacao")
   date_update DateTime @updatedAt @map("data_atualizacao")
